@@ -1,0 +1,14 @@
+.idea/
+tmp/
+*.iml
+node_modules/
+nginx.log
+
+.DS_Store
+*.db
+*.bak
+*.tmp
+*.cmd
+~*
+
+

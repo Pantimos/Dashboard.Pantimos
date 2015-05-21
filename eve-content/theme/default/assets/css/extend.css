@@ -1,0 +1,23 @@
+.CodeMirror {
+    text-shadow: none;
+    text-align: left;
+}
+
+#console-result {
+    display: none;
+}
+
+.masthead-brand {
+    cursor: default;
+    -webkit-user-select: none;
+}
+
+.control-btn {
+    margin-bottom: 30px;
+}
+.btn:hover{
+    background: #eee;
+}
+.panel-edit-hosts .row{
+    margin-top: 5px;
+}
