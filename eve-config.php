@@ -34,6 +34,7 @@ define('vmDomainName', 'dashboard.pantimos.io');
 /** 载入程序模块 */
 function __autoload($classname)
 {
+
     $fileName = ABSPATH . FILE_PREFIX . "include/" . strtolower($classname);
     $classFile = $fileName . ".class.php";
     $libFile = $fileName . ".lib.php";
@@ -44,6 +45,7 @@ function __autoload($classname)
     if (file_exists($classFile)) {
         include($classFile);
     }
+
 }
 
 /** 输出网站内容 */

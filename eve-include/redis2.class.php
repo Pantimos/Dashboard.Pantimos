@@ -1,11 +1,12 @@
 <?php
 /**
  * redis 管理模块
+ * @notice hhvm下redis类名被占用，注意规避
  */
 
 if (!defined('FILE_PREFIX')) die('Silence is golden.');
 
-class Redis extends Safe
+class Redis2 extends Safe
 {
     private $args = [];
     private $config = [
@@ -22,10 +23,6 @@ class Redis extends Safe
     function __construct()
     {
         $this->args = core::init_args(func_get_args());
-
-        $redisLib = dirname(__FILE__) . "/Predis.php";
-        require_once $redisLib;
-
         try {
 
             Predis\Autoloader::register();
@@ -37,7 +34,6 @@ class Redis extends Safe
         }
 
         $this->cmdPrefix = "$ " . $this->config['base']['host'] . ":" . $this->config['base']['port'] . " > ";
-
         self::optButtons();
         echo '<textarea id="console-result">';
         switch ($this->args['action']) {
@@ -87,7 +83,7 @@ class Redis extends Safe
     private function save()
     {
         echo $this->cmdPrefix . "SAVE\n";
-        echo $this->cmdPrefix . $this->instance->flushall();
+        echo $this->cmdPrefix . $this->instance->save();
     }
 
     private function flush()

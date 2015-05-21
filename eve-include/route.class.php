@@ -44,9 +44,7 @@ class Route extends Safe
                 if (empty($this->action)) {
                     $this->action = "info";
                 }
-$r =                new Redis(['action' => $this->action]);
-
-                var_dump($r);
+                new Redis2(['action' => $this->action]);
                 break;
             case 'doc':
                 if (empty($this->action)) {
