@@ -1,18 +1,17 @@
-if(document.getElementById("console-result")){
-    var cm = CodeMirror.fromTextArea(document.getElementById("console-result"), {
-        lineNumbers  : true,
-        mode         : "shell",
-        matchBrackets: true,
-        theme        : "monokai"
-    });
-
-    console.log(cm)
-}
-
-
 $(function () {
+    'use strict';
 
-    function initRoute() {
+    var consoleBox = document.getElementById('console-result');
+    if (consoleBox) {
+        var cm = CodeMirror.fromTextArea(consoleBox, {
+            lineNumbers  : true,
+            mode         : 'shell',
+            matchBrackets: true,
+            theme        : 'monokai'
+        });
+    }
+
+    function initRoute () {
         var oRoute = location.search.split('?'), arr = {};
         oRoute = oRoute[oRoute.length - 1];
         if (oRoute) {
@@ -28,37 +27,20 @@ $(function () {
         return arr;
     }
 
-    function initNav() {
-        var route = initRoute(),
-            nav = $('.masthead-nav');
-        switch (route.mod) {
-            case 'nginx':
-                nav.find('li.nav-nginx').addClass('active');
-                break;
-            case 'redis':
-                nav.find('li.nav-redis').addClass('active');
-                break;
-            case 'api':
-                nav.find('li.nav-api').addClass('active');
-                break;
-            case 'hosts':
-                nav.find('li.nav-hosts').addClass('active');
-                break;
-            case 'doc':
-                nav.find('li.nav-doc').addClass('active');
-                break;
-            case 'build':
-                nav.find('li.nav-build').addClass('active');
-                break;
-            default :
-                nav.find('li.nav-home').addClass('active');
-                break;
+    // 初始化导航按钮
+    (function initNav () {
+        var route   = initRoute(),
+            navBtns = $('.masthead-nav > li');
+        var currentNav = 'home';
+        for (var i = 0, j = navBtns.length; i < j; i++) {
+            if (navBtns.eq(i).data('mod') === route.mod) {
+                return navBtns.eq(i).addClass('active');
+            }
         }
-    }
-
-    initNav();
-
-    function initEditHosts() {
+        $('.masthead-nav > .nav-home').addClass('active');
+    }());
+    // 初始化额外的编辑框
+    (function editPanel () {
         var route = initRoute();
         switch (route.mod) {
             case 'hosts':
@@ -66,50 +48,101 @@ $(function () {
                     $('.panel-edit-hosts').removeClass('hide');
                 }
                 break;
+            case 'project':
+                if (route.action === 'create' || route.action === 'destroy') {
+                    $('.panel-edit-project').removeClass('hide');
+                }
+                break;
         }
-    }
-
-    initEditHosts();
+    }())
 
     var body = $('body');
-    body.on('HOST:SWITCH', function () {
-        $('.panel-edit-hosts').toggleClass('hide');
-    }).on('HOST:ADD', function (e, target) {
-        $.getJSON(target.attr('href'), {"data": $('.input-host-add').val()}, function (data) {
-            if (data == 'ok') {
-                location.href = '/?mod=hosts&action=view';
-            } else {
-                alert(data);
+    body
+        .on('HOST:SWITCH', function () {
+            $('.panel-edit-hosts').toggleClass('hide');
+        })
+        .on('HOST:ADD', function (e, target) {
+            $.getJSON(target.attr('href'), {"data": $('.input-host-add').val()}, function (data) {
+                if (data == 'ok') {
+                    location.href = '/?mod=hosts&action=view';
+                } else {
+                    alert(data);
+                }
+            });
+        })
+        .on('HOST:REMOVE', function (e, target) {
+            $.getJSON(target.attr('href'), {"data": $('.input-host-remove').val()}, function (data) {
+                if (data == 'ok') {
+                    location.href = '/?mod=hosts&action=view';
+                } else {
+                    alert(data);
+                }
+            });
+        })
+        .on('NGINX:RESTART', function () {
+            $.getJSON($(this).attr('href')).always(function () {
+                setTimeout(function () {
+                    location.reload()
+                }, 500);
+            });
+        })
+        .on('PROJECT:SWITCH', function () {
+            $('.panel-edit-project').toggleClass('hide');
+        })
+        .on('PROJECT:DO', function (e, target) {
+            var route = initRoute(),
+                data  = $('.input-project-name').val();
+            if (!route.action || !data) {
+                return false;
             }
+            $.getJSON(target.attr('href'), {"data": data, "do": route.action}, function (data) {
+                console.log(data)
+                if (data == 'ok') {
+                    location.href = '/?mod=project&action=help';
+                } else {
+                    alert(data);
+                }
+            });
         });
-    }).on('HOST:REMOVE', function (e, target) {
-        $.getJSON(target.attr('href'), {"data": $('.input-host-remove').val()}, function (data) {
-            if (data == 'ok') {
-                location.href = '/?mod=hosts&action=view';
-            } else {
-                alert(data);
-            }
-        });
-    }).on('NGINX:RESTART', function () {
-        $.getJSON($(this).attr('href')).always(function () {
-            setTimeout(function () {
-                location.reload()
-            }, 500);
-        });
-    });
 
+
+    //HOST
     $('.btn-edit-hosts').on('click', function () {
         body.trigger('HOST:SWITCH');
     });
-
     $('.btn-host-add').on('click', function (e) {
         e.preventDefault();
         body.trigger('HOST:ADD', [$(this)]);
     });
-
     $('.btn-host-remove').on('click', function (e) {
         e.preventDefault();
         body.trigger('HOST:REMOVE', [$(this)]);
+    });
+    $('.input-host-add').on('keyup', function (e) {
+        if (e.keyCode === 13) {
+            body.trigger('HOST:ADD', [$('.btn-host-add')]);
+        }
+    });
+    $('.input-host-remove').on('keyup', function (e) {
+        if (e.keyCode === 13) {
+            body.trigger('HOST:REMOVE', [$('.btn-host-remove')]);
+        }
+    });
+
+    //NGINX
+    $('.btn-nginx-restart').on('click', function (e) {
+        e.preventDefault();
+        body.trigger('NGINX:RESTART');
+    });
+
+    //PROJECT
+    $('.btn-project-create').on('click', function (e) {
+        e.preventDefault();
+        body.trigger('PROJECT:SWITCH');
+    });
+    $('.btn-project-do').on('click', function (e) {
+        e.preventDefault();
+        body.trigger('PROJECT:DO', [$(this)]);
     });
 
     $('.input-host-add').on('keyup', function (e) {
@@ -118,24 +151,14 @@ $(function () {
         }
     });
 
-    $('.input-host-remove').on('keyup', function (e) {
-        if (e.keyCode === 13) {
-            body.trigger('HOST:REMOVE', [$('.btn-host-remove')]);
-        }
-    });
-
-    $('.btn-nginx-restart').on('click', function (e) {
-        e.preventDefault();
-        body.trigger('NGINX:RESTART');
-    });
 
     var fetchApi = $('#console-result').attr('data-url');
     fetchApi && $.ajax({
         type   : "GET",
         url    : fetchApi,
         success: function (response, status, xhr) {
-            var ret = xhr.getResponseHeader("Page-Cache")|| "";
-            $('#console-result').val($('#console-result').val()+"\n"+ret);
+            var ret = xhr.getResponseHeader("Page-Cache") || "";
+            $('#console-result').val($('#console-result').val() + "\n" + ret);
         }
     });
 

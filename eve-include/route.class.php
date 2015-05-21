@@ -46,6 +46,12 @@ class Route extends Safe
                 }
                 new Redis2(['action' => $this->action]);
                 break;
+            case 'project':
+                if (empty($this->action)) {
+                    $this->action = "help";
+                }
+                new Project(['action' => $this->action]);
+                break;
             case 'doc':
                 if (empty($this->action)) {
                     $this->action = "home";

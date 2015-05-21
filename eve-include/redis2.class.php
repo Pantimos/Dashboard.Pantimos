@@ -95,7 +95,6 @@ class Redis2 extends Safe
     private function flushMock()
     {
         $url = 'http://mock.pantimos.io/record?flush-cache';
-        echo '<textarea id="console-result" data-url="' . $url . '">';
         echo 'QUERY: ' . $url;
     }
 }
