@@ -144,9 +144,9 @@ $(function () {
         body.trigger('PROJECT:DO', [$(this)]);
     });
 
-    $('.input-project-do').on('keyup', function (e) {
+    $('.input-project-name').on('keyup', function (e) {
         if (e.keyCode === 13) {
-            body.trigger('HOST:ADD', [$('.btn-host-add')]);
+            body.trigger('PROJECT:DO', [$('.btn-project-do')]);
         }
     });
 

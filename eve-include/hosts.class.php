@@ -78,16 +78,18 @@ ff02::2             ip6-allrouters
     private function checkParams($data)
     {
         if (isset($data)) {
-            if (!(gettype($data) == 'string' && self::isValidateURL($data)) &&
-                !(gettype($data) == 'object' && self::isValidateURL($data['host']))
-            ) {
+            if (!(gettype($data) == 'string' && self::isValidateURL($data)) || (gettype($data) == 'object' && self::isValidateURL($data['host']))) {
                 API::fail("请检查输入内容。", true);
+            } elseif (gettype($data) == 'string' && self::isValidateURL($data)) {
+                $data = self::testStatus($data);
+            } else if (gettype($data) == 'object' && self::isValidateURL($data['host'])) {
+                $data = self::testStatus($data['host']);
             }
         } else {
             $data = self::testStatus();
         }
         if (!$data) {
-            API::fail("请检查输入内容。", true);
+            API::fail("1请检查输入内容。", true);
         }
 
         return $data;
@@ -162,16 +164,15 @@ ff02::2             ip6-allrouters
      */
     private function testStatus($data = "")
     {
-        $this->query = '';
-
-        if (empty($data) && !empty($_GET['data'])) {
-            $this->query = trim(urldecode($_GET['data']));
-        } elseif (isset($data)) {
+        if (isset($data)) {
             $this->query = $data;
-        } else {
+        } elseif (empty($data) && isset($_GET['data'])) {
+            $this->query = $_GET['data'];
+        }else{
             return false;
         }
-        $this->query = strtolower(trim(urldecode($_GET['data'])));
+
+        $this->query = strtolower(trim(urldecode($this->query)));
         $ret = preg_match('/^(.+)@(.+)/', $this->query, $matches);
         if ($ret) {
             if (count($matches) !== 3) {

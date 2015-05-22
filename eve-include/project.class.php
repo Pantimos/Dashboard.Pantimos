@@ -11,7 +11,16 @@ class Project extends Safe
 {
     private $args = [];
     private $config = [
-        'blackList' => ['dashboard.pantimos.io', 'mock.pantimos.io', 'pma.pantimos.io'],
+        'blackList' => [
+            'dashboard.pantimos.io',
+            'mock.pantimos.io',
+            'pma.pantimos.io',
+            'localhost',
+            'Pantimos',
+            'ip6-localhost',
+            'ip6-loopback',
+            'dl.hhvm.com'
+        ],
         'base'      => '
 ##
 # {$DOMAIN_NAME}
@@ -116,6 +125,21 @@ server {
     }
 
     /**
+     * 操作黑名单
+     * @param $blacklist
+     * @param $domainPath
+     */
+    private function blackListChecker($blacklist, $domainPath)
+    {
+        foreach ($blacklist as $key) {
+            $pos = strpos($domainPath, $key);
+            if ($pos) {
+                API::fail("不允许删除保留域名。", true);
+            }
+        }
+    }
+
+    /**
      * 执行具体任务
      *
      * @param null $data
@@ -146,6 +170,8 @@ server {
                 if (file_exists($domainPath)) {
                     API::fail("项目已经存在，如果想重新初始化，请先删除项目。", true);
                 }
+                self::blackListChecker($this->config['blackList'], $domainPath);
+
                 system('mkdir -p ' . $domainPath . '/public');
                 system('mkdir -p ' . $domainPath . '/conf');
                 system('mkdir -p ' . $domainPath . '/logs');
@@ -157,15 +183,11 @@ server {
                 API::success("创建项目并绑定域名成功。", true);
                 break;
             case 'destroy':
-                foreach ($this->config['blackList'] as $key) {
-                    $pos = strpos($domainPath, $key);
-                    if ($pos) {
-                        API::fail("不允许删除保留域名。", true);
-                    }
-                }
                 if (!file_exists($domainPath)) {
                     API::fail("目标不存在或已被删除。", true);
                 }
+                self::blackListChecker($this->config['blackList'], $domainPath);
+
                 system('rm -rf ' . $domainPath);
                 $hosts = new Hosts();
                 $hosts->add(false, $domainName);

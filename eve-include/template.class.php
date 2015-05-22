@@ -48,7 +48,7 @@ class Template extends RainTPL
 
         $mod = new Route();
 
-        if (!isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && $_SERVER["HTTP_X_REQUESTED_WITH"] != 'XMLHttpRequest') {
+        if (!isset($_SERVER["HTTP_X_REQUESTED_WITH"]) || $_SERVER["HTTP_X_REQUESTED_WITH"] != 'XMLHttpRequest') {
             if (empty($mod->module)) {
                 $this->defaultPage();
             }
