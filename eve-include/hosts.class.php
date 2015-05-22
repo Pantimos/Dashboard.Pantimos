@@ -1,6 +1,8 @@
 <?php
 /**
- * hosts 管理模块
+ * HOSTS 管理模块
+ *
+ * @desc 提供HOSTS的增删改
  */
 
 if (!defined('FILE_PREFIX')) die('Silence is golden.');
@@ -30,6 +32,7 @@ ff02::2             ip6-allrouters
 
 # extend hosts'
     ];
+    private $query = '';
 
     function __construct()
     {
@@ -38,10 +41,10 @@ ff02::2             ip6-allrouters
         if ($_SERVER["HTTP_X_REQUESTED_WITH"] == 'XMLHttpRequest') {
             switch ($this->args['action']) {
                 case 'add':
-                    self::addByXHR();
+                    self::add(true);
                     break;
                 case 'remove':
-                    self::removeByXHR();
+                    self::remove(true);
                     break;
             }
         } else {
@@ -65,65 +68,132 @@ ff02::2             ip6-allrouters
         }
     }
 
-
-    private function addByXHR()
+    /**
+     * 检查输入参数
+     *
+     * @param $data
+     *
+     * @return array|bool
+     */
+    private function checkParams($data)
     {
-        $test = self::testStatus();
-        if ($test) {
-            exec('sed -ie "\|^' . $test['ip'] . '           ' . $test['host'] . '\$|d" ' . $this->config['bin']);
-            exec('echo "' . $test['ip'] . '           ' . $test['host'] . '" >> ' . $this->config['bin'] . "\n");
-            echo '"ok"';
+        if (isset($data)) {
+            if (!(gettype($data) == 'string' && self::isValidateURL($data)) &&
+                !(gettype($data) == 'object' && self::isValidateURL($data['host']))
+            ) {
+                API::fail("请检查输入内容。", true);
+            }
         } else {
-            echo '"请检查输入内容。"';
+            $data = self::testStatus();
         }
+        if (!$data) {
+            API::fail("请检查输入内容。", true);
+        }
+
+        return $data;
     }
 
-    private function removeByXHR()
+    /**
+     * 添加域名绑定
+     *
+     * @param bool $isXHR
+     * @param null $data
+     */
+    public function add($isXHR = false, $data = null)
     {
-        $test = self::testStatus();
-        if ($test) {
-            exec('sed -ie "\|^' . $test['ip'] . '           ' . $test['host'] . '\$|d" ' . $this->config['bin']);
-            echo '"ok"';
+        $data = self::checkParams($data);
+        exec('sed -ie "\|^' . $data['ip'] . '           ' . $data['host'] . '\$|d" ' . $this->config['bin']);
+        exec('echo "' . $data['ip'] . '           ' . $data['host'] . '" >> ' . $this->config['bin'] . "\n");
+        if ($isXHR) {
+            API::success("添加域名成功。", true);
         } else {
-            echo '"请检查输入内容。"';
+            system('cat ' . $this->config['bin']);
         }
     }
 
     /**
-     * 测试 hosts 配置是否正确
+     * 删除域名绑定
      *
-     * @return array|bool
+     * @param bool $isXHR
+     * @param null $data
      */
-    private function testStatus()
+    public function remove($isXHR = false, $data = null)
     {
-        if ($_GET['data']) {
-            $query = trim(urldecode($_GET['data']));
-            $ret = preg_match('/^(.+)@(.+)/', $query, $matches);
+        $data = self::checkParams($data);
+        exec('sed -ie "\|^' . $data['ip'] . '           ' . $data['host'] . '\$|d" ' . $this->config['bin']);
+        if ($isXHR) {
+            API::success("删除域名成功。", true);
+        } else {
+            system('cat ' . $this->config['bin']);
+        }
+    }
 
-            if ($ret) {
-                if (count($matches) !== 3) {
-                    return false;
-                } else {
-                    $host = $matches[1];
-                    $correct = filter_var($matches[2], FILTER_VALIDATE_IP);
-                    if (!$correct) {
-                        $ip = '127.0.0.1';
-                    } else {
-                        $ip = $matches[2];
-                    }
-                }
-            } else {
-                $host = $query;
-                $ip = '127.0.0.1';
-            }
-
-            return [
-                'host' => $host,
-                'ip'   => $ip
-            ];
+    /**
+     * 验证链接
+     *
+     * @param $url
+     *
+     * @return bool
+     */
+    private function isValidateURL(&$url)
+    {
+        if (preg_match("/([a-z0-9\-]\.?)+[a-z]/i", $url)) {
+            return true;
         } else {
             return false;
         }
+    }
+
+
+    /**
+     * 测试 hosts 配置是否正确
+     *
+     * @param string $data
+     *
+     * @return array|bool
+     */
+    private function testStatus($data = "")
+    {
+        $this->query = '';
+
+        if (empty($data) && !empty($_GET['data'])) {
+            $this->query = trim(urldecode($_GET['data']));
+        } elseif (isset($data)) {
+            $this->query = $data;
+        } else {
+            return false;
+        }
+        $this->query = strtolower(trim(urldecode($_GET['data'])));
+        $ret = preg_match('/^(.+)@(.+)/', $this->query, $matches);
+        if ($ret) {
+            if (count($matches) !== 3) {
+                return false;
+            } else {
+                $host = $matches[1];
+                // 验证域名合法性
+                if (!self::isValidateURL($host)) {
+                    return false;
+                }
+                $correct = filter_var($matches[2], FILTER_VALIDATE_IP);
+                if (!$correct) {
+                    $ip = '127.0.0.1';
+                } else {
+                    $ip = $matches[2];
+                }
+            }
+        } else {
+            // 验证域名合法性
+            if (!self::isValidateURL($this->query)) {
+                return false;
+            }
+            $host = $this->query;
+            $ip = '127.0.0.1';
+        }
+
+        return [
+            'host' => $host,
+            'ip'   => $ip
+        ];
     }
 
     /**
@@ -167,35 +237,20 @@ ff02::2             ip6-allrouters
 </div>';
     }
 
-
-    private function view(){
-        system( 'cat ' . $this->config['bin'] );
+    /**
+     * 查看当前系统中绑定的域名
+     */
+    private function view()
+    {
+        system('cat ' . $this->config['bin']);
     }
 
-    private function restore(){
-        exec( 'echo "' . $this->config['base'] . '" >' . $this->config['bin'] );
-        system( 'cat ' . $this->config['bin'] );
+    /**
+     * 恢复系统默认HOSTS配置
+     */
+    private function restore()
+    {
+        exec('echo "' . $this->config['base'] . '" >' . $this->config['bin']);
+        system('cat ' . $this->config['bin']);
     }
-
-    private function add(){
-        $test = self::testStatus();
-        if ( $test ) {
-            exec( 'sed -ie "\|^' . $test['ip'] . '           ' . $test['host'] . '\$|d" ' . $this->config['bin'] );
-            exec( 'echo "' . $test['ip'] . '           ' . $test['host'] . '" >> ' . $this->config['bin'] . "\n" );
-            system( 'cat ' . $this->config['bin'] );
-        } else {
-            echo '请检查输入内容。';
-        }
-    }
-
-    private function remove(){
-        $test = self::testStatus();
-        if ( $test ) {
-            exec( 'sed -ie "\|^' . $test['ip'] . '           ' . $test['host'] . '\$|d" ' . $this->config['bin'] );
-            system( 'cat ' . $this->config['bin'] );
-        } else {
-            echo '请检查输入内容。';
-        }
-    }
-
 }

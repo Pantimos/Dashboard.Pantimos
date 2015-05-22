@@ -42,13 +42,13 @@ class Template extends RainTPL
             }
         }
 
-        if ($_SERVER["HTTP_X_REQUESTED_WITH"] != 'XMLHttpRequest') {
+        if (!isset($_SERVER["HTTP_X_REQUESTED_WITH"]) || $_SERVER["HTTP_X_REQUESTED_WITH"] != 'XMLHttpRequest') {
             $this->header();
         }
 
         $mod = new Route();
 
-        if ($_SERVER["HTTP_X_REQUESTED_WITH"] != 'XMLHttpRequest') {
+        if (!isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && $_SERVER["HTTP_X_REQUESTED_WITH"] != 'XMLHttpRequest') {
             if (empty($mod->module)) {
                 $this->defaultPage();
             }

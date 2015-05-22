@@ -93,32 +93,31 @@ server {
 
     private function create()
     {
-        echo "请输入要创建的项目的域名。";
+        API::fail("请输入要创建的项目的域名。");
     }
 
     private function destroy()
     {
-        echo "请输入要删除的项目的域名。";
+        API::fail("请输入要删除的项目的域名。");
     }
 
     private function doJob()
     {
 
         if (empty($_GET['data']) || empty($_GET['do'])) {
-            die("请检查输入内容");
+            API::fail("请检查输入内容。");
         } else {
 
             $domainName = strtolower(trim($_GET['data']));
             if (empty($domainName)) {
-                die("请检查输入内容");
+                API::fail("请检查输入内容。");
             }
 
             $domainPath = vmRootDir . $domainName;
-
             switch ($_GET['do']) {
                 case 'create':
                     if (file_exists($domainPath)) {
-                        die("项目已经存在，如果想重新初始化，请先删除项目。");
+                        API::fail("项目已经存在，如果想重新初始化，请先删除项目。");
                     }
 
                     system('mkdir -p ' . $domainPath . '/public');
@@ -126,8 +125,10 @@ server {
                     system('mkdir -p ' . $domainPath . '/logs');
                     $tpl = str_replace('{$DOMAIN_NAME}', $_GET['data'], $this->config['base']);
                     $tpl = str_replace('{$DOMAIN_PATH}', $domainPath, $tpl);
-
                     system('echo "' . $tpl . '" >' . $domainPath . '/conf/nginx.conf');
+                    $hosts = new Hosts();
+                    $hosts->add(false, $domainName);
+                    API::success("创建项目并绑定域名成功。");
                     die('ok');
                     break;
                 case 'destroy':
@@ -135,14 +136,14 @@ server {
                         $pos = strpos($domainPath, $key);
                         echo $pos . "\n";
                         if ($pos) {
-                            die("不允许删除保留域名。");
+                            API::fail("不允许删除保留域名。");
                         }
                     }
                     if (!file_exists($domainPath)) {
-                        die("目标不存在或已被删除");
+                        API::fail("目标不存在或已被删除。");
                     }
                     system('rm -rf ' . $domainPath);
-                    die('ok');
+                    API::success("OK");
                     break;
             }
         }

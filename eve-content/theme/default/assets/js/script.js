@@ -63,19 +63,19 @@ $(function () {
         })
         .on('HOST:ADD', function (e, target) {
             $.getJSON(target.attr('href'), {"data": $('.input-host-add').val()}, function (data) {
-                if (data == 'ok') {
+                if (data && data.code === 200) {
                     location.href = '/?mod=hosts&action=view';
                 } else {
-                    alert(data);
+                    alert(data && data.desc);
                 }
             });
         })
         .on('HOST:REMOVE', function (e, target) {
             $.getJSON(target.attr('href'), {"data": $('.input-host-remove').val()}, function (data) {
-                if (data == 'ok') {
+                if (data && data.code === 200) {
                     location.href = '/?mod=hosts&action=view';
                 } else {
-                    alert(data);
+                    alert(data && data.desc);
                 }
             });
         })
@@ -145,7 +145,7 @@ $(function () {
         body.trigger('PROJECT:DO', [$(this)]);
     });
 
-    $('.input-host-add').on('keyup', function (e) {
+    $('.input-project-do').on('keyup', function (e) {
         if (e.keyCode === 13) {
             body.trigger('HOST:ADD', [$('.btn-host-add')]);
         }
