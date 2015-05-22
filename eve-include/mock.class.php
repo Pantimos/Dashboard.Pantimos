@@ -91,15 +91,23 @@ class Mock extends Safe
     private function mockXHR($config)
     {
         $data = self::analyseData($config);
+        switch ($data['code']) {
+            case 200:
+                API::json((file_get_contents($data['file'])), false);
+                break;
+            case 404:
+                echo 'cat "test">' . $data['file'];
+                system('cat test>' . $data['file']);
+                break;
+        }
     }
 
     private function mockPage($config)
     {
         $data = self::analyseData($config);
-        var_dump($data);
         switch ($data['code']) {
             case 200:
-                echo '1111';
+                echo file_get_contents($data['file']);
                 break;
             case 404:
                 echo 'cat "test">' . $data['file'];

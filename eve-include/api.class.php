@@ -20,11 +20,13 @@ class API extends Safe
      *
      * @param $data
      */
-    static function json($data)
+    static function json($data, $encode = true)
     {
         header('X-Content-Type-Options: nosniff');
-        header('Content-Type:application/x-javascript;charset=utf-8;');
-        $data = json_encode($data);
+        header('Content-Type:application/json;charset=utf-8;');
+        if($encode){
+            $data = json_encode($data);
+        }
         $data = str_replace('/\u2028/g', '\\u2028', $data);
         $data = str_replace('/\u2029/g', '\\u2029', $data);
         // Only allow "[","]","a-zA-Z0123456789_", "$" and "." characters.
@@ -97,6 +99,7 @@ class API extends Safe
 
     /**
      * 输出失败信息
+     *
      * @param      $data
      * @param bool $isJSON
      */
