@@ -1,6 +1,8 @@
 <?php
 /**
- * nginx 管理模块
+ * Nginx 管理模块
+ *
+ * @desc 提供nginx的简单管理
  */
 
 if (!defined('FILE_PREFIX')) die('Silence is golden.');
@@ -16,21 +18,30 @@ class Nginx extends Safe
     function __construct()
     {
         $this->args = core::init_args(func_get_args());
+        $action = isset($this->args['action']) ? $this->args['action'] : "";
 
-        self::optButtons();
-        echo '<textarea id="console-result">';
-        switch ($this->args['action']) {
-            case 'reload':
-                self::reload();
-                break;
-            case 'restart':
-                self::restart();
-                break;
-            case 'test':
-                self::test();
-                break;
+        if (core::isAjax()) {
+            switch ($action) {
+                case 'reload':
+                    self::reload(true);
+                    break;
+            }
+        } else {
+            self::optButtons();
+            echo '<textarea id="console-result">';
+            switch ($action) {
+                case 'reload':
+                    self::reload();
+                    break;
+                case 'restart':
+                    self::restart();
+                    break;
+                case 'test':
+                    self::test();
+                    break;
+            }
+            echo '</textarea>';
         }
-        echo '</textarea>';
     }
 
     /**
@@ -40,8 +51,6 @@ class Nginx extends Safe
      */
     private function testStatus()
     {
-        exec($this->config['bin'] . ' -t 2>' . $this->config['buffer']);
-
         return shell_exec('cat ' . $this->config['buffer'] . ' | grep "test is successful"') ? 200 : 400;
     }
 
@@ -58,9 +67,13 @@ class Nginx extends Safe
     }
 
     /**
-     * 重载输出
+     * 重新加载配置
+     *
+     * @param bool $silent
+     *
+     * @return bool
      */
-    private function reload()
+    public function reload($silent = false)
     {
         switch (self::testStatus()) {
             case 200:
@@ -70,22 +83,30 @@ class Nginx extends Safe
                 system('ps -ef | grep nginx');
                 $ret = ob_get_contents();
                 ob_end_clean();
-                $ret = explode("\n", $ret);
-                foreach ($ret as $line) {
-                    if (strpos($line, 'nginx:')) {
-                        echo $line . "\n";
+                if ($silent) {
+                    return true;
+                } else {
+                    $ret = explode("\n", $ret);
+                    foreach ($ret as $line) {
+                        if (strpos($line, 'nginx:')) {
+                            echo $line . "\n";
+                        }
                     }
                 }
                 break;
             case 400:
-                system('cat ' . $this->config['buffer']);
-                echo '配置有误，请确定配置无误，再尝试重载。';
+                if ($silent) {
+                    return false;
+                } else {
+                    system('cat ' . $this->config['buffer']);
+                    API::fail('配置有误，请确定配置无误，再尝试重载。');
+                }
                 break;
         }
     }
 
     /**
-     * 重启输出
+     * 重启服务
      */
     private function restart()
     {
@@ -96,11 +117,10 @@ class Nginx extends Safe
                 break;
             case 400:
                 system('cat ' . $this->config['buffer']);
-                echo '配置有误，请确定配置无误，再尝试重载。';
+                API::fail('配置有误，请确定配置无误，再尝试重载。');
                 break;
         }
     }
-
 
     /**
      * 测试输出
@@ -113,7 +133,7 @@ class Nginx extends Safe
                 break;
             case 400:
                 system('cat ' . $this->config['buffer']);
-                echo '配置有误，请确定配置无误，再尝试重载。';
+                API::fail('配置有误，请确定配置无误，再尝试重载。');
                 break;
         }
     }

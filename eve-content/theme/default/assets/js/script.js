@@ -143,7 +143,6 @@ $(function () {
         e.preventDefault();
         body.trigger('PROJECT:DO', [$(this)]);
     });
-
     $('.input-project-name').on('keyup', function (e) {
         if (e.keyCode === 13) {
             body.trigger('PROJECT:DO', [$('.btn-project-do')]);

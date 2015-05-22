@@ -1,7 +1,9 @@
 <?php
 /**
  * redis 管理模块
+ *
  * @notice hhvm下redis类名被占用，注意规避
+ * @desc 简单的Redis管理，待封装
  */
 
 if (!defined('FILE_PREFIX')) die('Silence is golden.');

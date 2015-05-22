@@ -37,9 +37,10 @@ ff02::2             ip6-allrouters
     function __construct()
     {
         $this->args = core::init_args(func_get_args());
+        $action = isset($this->args['action']) ? $this->args['action'] : "";
 
-        if (isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && $_SERVER["HTTP_X_REQUESTED_WITH"] == 'XMLHttpRequest') {
-            switch ($this->args['action']) {
+        if (core::isAjax()) {
+            switch ($action) {
                 case 'add':
                     self::add(true);
                     break;
@@ -50,7 +51,7 @@ ff02::2             ip6-allrouters
         } else {
             self::optButtons();
             echo '<textarea id="console-result">';
-            switch ($this->args['action']) {
+            switch ($action) {
                 case 'view':
                     self::view();
                     break;
@@ -108,9 +109,9 @@ ff02::2             ip6-allrouters
         $data = self::checkParams($data);
         exec('sed -ie "\|^' . $data['ip'] . '           ' . $data['host'] . '\$|d" ' . $this->config['bin']);
         exec('echo "' . $data['ip'] . '           ' . $data['host'] . '" >> ' . $this->config['bin'] . "\n");
-        if ($isXHR) {
+        if ($isXHR && isset($data)) {
             API::success("添加域名成功。", true);
-        } elseif (isset($data)) {
+        } elseif (!$isXHR && isset($data)) {
             return true;
         } else {
             system('cat ' . $this->config['bin']);
@@ -168,7 +169,7 @@ ff02::2             ip6-allrouters
             $this->query = $data;
         } elseif (empty($data) && isset($_GET['data'])) {
             $this->query = $_GET['data'];
-        }else{
+        } else {
             return false;
         }
 

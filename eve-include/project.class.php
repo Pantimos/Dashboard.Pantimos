@@ -61,17 +61,18 @@ server {
     function __construct()
     {
         $this->args = core::init_args(func_get_args());
+        $action = isset($this->args['action']) ? $this->args['action'] : "";
 
-        if (isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && $_SERVER["HTTP_X_REQUESTED_WITH"] == 'XMLHttpRequest') {
-            switch ($this->args['action']) {
+        if (core::isAjax()) {
+            switch ($action) {
                 case 'do':
                     self::doJob();
                     break;
             }
         } else {
-            self::optButtons($this->args['action']);
+            self::optButtons();
             echo '<textarea id="console-result">';
-            switch ($this->args['action']) {
+            switch ($action) {
                 case 'help':
                     self::help();
                     break;
@@ -126,15 +127,18 @@ server {
 
     /**
      * 操作黑名单
+     *
      * @param $blacklist
      * @param $domainPath
      */
     private function blackListChecker($blacklist, $domainPath)
     {
+        $targetDir = explode("/", $domainPath);
+        $targetDir = $targetDir[ count($targetDir) - 1 ];
         foreach ($blacklist as $key) {
-            $pos = strpos($domainPath, $key);
+            $pos = strpos($targetDir, $key) !== false;
             if ($pos) {
-                API::fail("不允许删除保留域名。", true);
+                API::fail("不允许操作保留域名。", true);
             }
         }
     }
@@ -167,10 +171,10 @@ server {
         $domainPath = vmRootDir . $domainName;
         switch ($this->do) {
             case 'create':
+                self::blackListChecker($this->config['blackList'], $domainPath);
                 if (file_exists($domainPath)) {
                     API::fail("项目已经存在，如果想重新初始化，请先删除项目。", true);
                 }
-                self::blackListChecker($this->config['blackList'], $domainPath);
 
                 system('mkdir -p ' . $domainPath . '/public');
                 system('mkdir -p ' . $domainPath . '/conf');
@@ -178,19 +182,23 @@ server {
                 $tpl = str_replace('{$DOMAIN_NAME}', $this->data, $this->config['base']);
                 $tpl = str_replace('{$DOMAIN_PATH}', $domainPath, $tpl);
                 system('echo "' . $tpl . '" >' . $domainPath . '/conf/nginx.conf');
-                $hosts = new Hosts();
+                $hosts = new Hosts(func_get_args());
                 $hosts->add(false, $domainName);
+                $nginx = new Nginx(func_get_args());
+                $nginx->reload(true);
                 API::success("创建项目并绑定域名成功。", true);
                 break;
             case 'destroy':
+                self::blackListChecker($this->config['blackList'], $domainPath);
                 if (!file_exists($domainPath)) {
                     API::fail("目标不存在或已被删除。", true);
                 }
-                self::blackListChecker($this->config['blackList'], $domainPath);
 
                 system('rm -rf ' . $domainPath);
-                $hosts = new Hosts();
+                $hosts = new Hosts(func_get_args());
                 $hosts->add(false, $domainName);
+                $nginx = new Nginx(func_get_args());
+                $nginx->reload(true);
                 API::success("目标成功删除。", true);
                 break;
         }

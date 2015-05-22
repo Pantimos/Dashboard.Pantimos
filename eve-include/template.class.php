@@ -37,18 +37,22 @@ class Template extends RainTPL
         $this->initTemplate();
 
         if ($this->args['GZIP'] && core::gzip_accepted()) {
-            if (!ob_start(!$this->args['DEBUG'] ? 'ob_gzhandler' : null)) {
+            if (!defined('HHVM_VERSION')) {
+                if (!ob_start(!$this->args['DEBUG'] ? 'ob_gzhandler' : null)) {
+                    ob_start();
+                }
+            } else {
                 ob_start();
             }
         }
 
-        if (!isset($_SERVER["HTTP_X_REQUESTED_WITH"]) || $_SERVER["HTTP_X_REQUESTED_WITH"] != 'XMLHttpRequest') {
+        if (!core::isAjax()) {
             $this->header();
         }
 
         $mod = new Route();
 
-        if (!isset($_SERVER["HTTP_X_REQUESTED_WITH"]) || $_SERVER["HTTP_X_REQUESTED_WITH"] != 'XMLHttpRequest') {
+        if (!core::isAjax()) {
             if (empty($mod->module)) {
                 $this->defaultPage();
             }
