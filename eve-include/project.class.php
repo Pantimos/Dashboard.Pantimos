@@ -1,6 +1,8 @@
 <?php
 /**
- * project 管理模块
+ * Project 管理模块
+ *
+ * @desc 目录项目管理
  */
 
 if (!defined('FILE_PREFIX')) die('Silence is golden.');
@@ -9,7 +11,7 @@ class Project extends Safe
 {
     private $args = [];
     private $config = [
-        'blackList' => ['dashboard.pantimos.io', 'mock.pantimos.io'],
+        'blackList' => ['dashboard.pantimos.io', 'mock.pantimos.io', 'pma.pantimos.io'],
         'base'      => '
 ##
 # {$DOMAIN_NAME}
@@ -43,21 +45,22 @@ server {
 
 }
 '
-
     ];
+    private $data = null;
+    private $do = null;
 
     function __construct()
     {
         $this->args = core::init_args(func_get_args());
 
-        if ($_SERVER["HTTP_X_REQUESTED_WITH"] == 'XMLHttpRequest') {
+        if (isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && $_SERVER["HTTP_X_REQUESTED_WITH"] == 'XMLHttpRequest') {
             switch ($this->args['action']) {
                 case 'do':
                     self::doJob();
                     break;
             }
         } else {
-            self::optButtons();
+            self::optButtons($this->args['action']);
             echo '<textarea id="console-result">';
             switch ($this->args['action']) {
                 case 'help':
@@ -74,6 +77,9 @@ server {
         }
     }
 
+    /**
+     * 显示项目列表
+     */
     private function showProject()
     {
         ob_start();
@@ -85,71 +91,89 @@ server {
         echo $ret;
     }
 
+    /**
+     * 显示帮助
+     */
     private function help()
     {
         self::showProject();
     }
 
-
+    /**
+     * 创建项目
+     */
     private function create()
     {
-        API::fail("请输入要创建的项目的域名。");
+        echo("请输入要创建的项目的域名。");
     }
 
+    /**
+     * 删除项目
+     */
     private function destroy()
     {
-        API::fail("请输入要删除的项目的域名。");
+        echo("请输入要删除的项目的域名。");
     }
 
-    private function doJob()
+    /**
+     * 执行具体任务
+     *
+     * @param null $data
+     * @param null $do
+     */
+    private function doJob($data = null, $do = null)
     {
 
-        if (empty($_GET['data']) || empty($_GET['do'])) {
-            API::fail("请检查输入内容。");
+        if (isset($data) && isset($do)) {
+            $this->data = $data;
+            $this->do = $do;
+        } elseif (!empty($_GET['data']) && !empty($_GET['do'])) {
+            $this->data = $_GET['data'];
+            $this->do = $_GET['do'];
         } else {
+            API::fail("请检查输入内容。");
+        }
 
-            $domainName = strtolower(trim($_GET['data']));
-            if (empty($domainName)) {
-                API::fail("请检查输入内容。");
-            }
+        $this->do = strtolower(trim($this->do));
+        $domainName = strtolower(trim($this->data));
+        if (empty($domainName)) {
+            API::fail("请检查输入内容。");
+        }
 
-            $domainPath = vmRootDir . $domainName;
-            switch ($_GET['do']) {
-                case 'create':
-                    if (file_exists($domainPath)) {
-                        API::fail("项目已经存在，如果想重新初始化，请先删除项目。");
+        $domainPath = vmRootDir . $domainName;
+        switch ($this->do) {
+            case 'create':
+                if (file_exists($domainPath)) {
+                    API::fail("项目已经存在，如果想重新初始化，请先删除项目。", true);
+                }
+                system('mkdir -p ' . $domainPath . '/public');
+                system('mkdir -p ' . $domainPath . '/conf');
+                system('mkdir -p ' . $domainPath . '/logs');
+                $tpl = str_replace('{$DOMAIN_NAME}', $this->data, $this->config['base']);
+                $tpl = str_replace('{$DOMAIN_PATH}', $domainPath, $tpl);
+                system('echo "' . $tpl . '" >' . $domainPath . '/conf/nginx.conf');
+                $hosts = new Hosts();
+                $hosts->add(false, $domainName);
+                API::success("创建项目并绑定域名成功。", true);
+                break;
+            case 'destroy':
+                foreach ($this->config['blackList'] as $key) {
+                    $pos = strpos($domainPath, $key);
+                    if ($pos) {
+                        API::fail("不允许删除保留域名。", true);
                     }
-
-                    system('mkdir -p ' . $domainPath . '/public');
-                    system('mkdir -p ' . $domainPath . '/conf');
-                    system('mkdir -p ' . $domainPath . '/logs');
-                    $tpl = str_replace('{$DOMAIN_NAME}', $_GET['data'], $this->config['base']);
-                    $tpl = str_replace('{$DOMAIN_PATH}', $domainPath, $tpl);
-                    system('echo "' . $tpl . '" >' . $domainPath . '/conf/nginx.conf');
-                    $hosts = new Hosts();
-                    $hosts->add(false, $domainName);
-                    API::success("创建项目并绑定域名成功。");
-                    die('ok');
-                    break;
-                case 'destroy':
-                    foreach ($this->config['blackList'] as $key) {
-                        $pos = strpos($domainPath, $key);
-                        echo $pos . "\n";
-                        if ($pos) {
-                            API::fail("不允许删除保留域名。");
-                        }
-                    }
-                    if (!file_exists($domainPath)) {
-                        API::fail("目标不存在或已被删除。");
-                    }
-                    system('rm -rf ' . $domainPath);
-                    API::success("OK");
-                    break;
-            }
+                }
+                if (!file_exists($domainPath)) {
+                    API::fail("目标不存在或已被删除。", true);
+                }
+                system('rm -rf ' . $domainPath);
+                $hosts = new Hosts();
+                $hosts->add(false, $domainName);
+                API::success("目标成功删除。", true);
+                break;
         }
 
     }
-
 
     /**
      * 操作按钮
@@ -180,12 +204,4 @@ server {
     </div>
 </div>';
     }
-
-    private function testStatus()
-    {
-        exec($this->config['bin'] . ' -t 2>' . $this->config['buffer']);
-
-        return shell_exec('cat ' . $this->config['buffer'] . ' | grep "test is successful"') ? 200 : 400;
-    }
-
 }

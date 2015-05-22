@@ -38,7 +38,7 @@ ff02::2             ip6-allrouters
     {
         $this->args = core::init_args(func_get_args());
 
-        if ($_SERVER["HTTP_X_REQUESTED_WITH"] == 'XMLHttpRequest') {
+        if (isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && $_SERVER["HTTP_X_REQUESTED_WITH"] == 'XMLHttpRequest') {
             switch ($this->args['action']) {
                 case 'add':
                     self::add(true);
@@ -98,6 +98,8 @@ ff02::2             ip6-allrouters
      *
      * @param bool $isXHR
      * @param null $data
+     *
+     * @return bool
      */
     public function add($isXHR = false, $data = null)
     {
@@ -106,6 +108,8 @@ ff02::2             ip6-allrouters
         exec('echo "' . $data['ip'] . '           ' . $data['host'] . '" >> ' . $this->config['bin'] . "\n");
         if ($isXHR) {
             API::success("添加域名成功。", true);
+        } elseif (isset($data)) {
+            return true;
         } else {
             system('cat ' . $this->config['bin']);
         }
@@ -116,6 +120,8 @@ ff02::2             ip6-allrouters
      *
      * @param bool $isXHR
      * @param null $data
+     *
+     * @return bool
      */
     public function remove($isXHR = false, $data = null)
     {
@@ -123,6 +129,8 @@ ff02::2             ip6-allrouters
         exec('sed -ie "\|^' . $data['ip'] . '           ' . $data['host'] . '\$|d" ' . $this->config['bin']);
         if ($isXHR) {
             API::success("删除域名成功。", true);
+        } elseif (isset($data)) {
+            return true;
         } else {
             system('cat ' . $this->config['bin']);
         }

@@ -96,11 +96,10 @@ $(function () {
                 return false;
             }
             $.getJSON(target.attr('href'), {"data": data, "do": route.action}, function (data) {
-                console.log(data)
-                if (data == 'ok') {
+                if (data && data.code === 200) {
                     location.href = '/?mod=project&action=help';
                 } else {
-                    alert(data);
+                    alert(data && data.desc);
                 }
             });
         });
