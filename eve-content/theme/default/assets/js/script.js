@@ -27,35 +27,6 @@ $(function () {
         return arr;
     }
 
-    // 初始化导航按钮
-    (function initNav () {
-        var route   = initRoute(),
-            navBtns = $('.masthead-nav > li');
-        var currentNav = 'home';
-        for (var i = 0, j = navBtns.length; i < j; i++) {
-            if (navBtns.eq(i).data('mod') === route.mod) {
-                return navBtns.eq(i).addClass('active');
-            }
-        }
-        $('.masthead-nav > .nav-home').addClass('active');
-    }());
-    // 初始化额外的编辑框
-    (function editPanel () {
-        var route = initRoute();
-        switch (route.mod) {
-            case 'hosts':
-                if (route.action === 'add' || route.action === 'remove') {
-                    $('.panel-edit-hosts').removeClass('hide');
-                }
-                break;
-            case 'project':
-                if (route.action === 'create' || route.action === 'destroy') {
-                    $('.panel-edit-project').removeClass('hide');
-                }
-                break;
-        }
-    }())
-
     var body = $('body');
     body
         .on('HOST:SWITCH', function () {
@@ -92,10 +63,10 @@ $(function () {
         .on('PROJECT:DO', function (e, target) {
             var route = initRoute(),
                 data  = $('.input-project-name').val();
-            if (!route.action || !data) {
+            if (!route['pantimos_action'] || !data) {
                 return false;
             }
-            $.getJSON(target.attr('href'), {"data": data, "do": route.action}, function (data) {
+            $.getJSON(target.attr('href'), {"data": data, "do": route['pantimos_action']}, function (data) {
                 if (data && data.code === 200) {
                     location.href = '/?pantimos_mod=project&pantimos_action=help';
                 } else {
@@ -103,6 +74,37 @@ $(function () {
                 }
             });
         });
+
+
+    // 初始化导航按钮
+    (function initNav () {
+        var route   = initRoute(),
+            navBtns = $('.masthead-nav > li');
+        var currentNav = 'home';
+        for (var i = 0, j = navBtns.length; i < j; i++) {
+            if (navBtns.eq(i).data('mod') === route['pantimos_mod']) {
+                return navBtns.eq(i).addClass('active');
+            }
+        }
+        $('.masthead-nav > .nav-home').addClass('active');
+    }());
+    // 初始化额外的编辑框
+    (function editPanel () {
+        var route = initRoute();
+        switch (route['pantimos_mod']) {
+            case 'hosts':
+                if (route['pantimos_action'] === 'add' || route['pantimos_action'] === 'remove') {
+                    body.trigger('HOST:SWITCH');
+                }
+                break;
+            case 'project':
+                if (route['pantimos_action'] === 'create' || route['pantimos_action'] === 'destroy') {
+                    body.trigger('PROJECT:SWITCH');
+                }
+                break;
+        }
+    }())
+
 
 
     //HOST

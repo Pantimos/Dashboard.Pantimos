@@ -81,6 +81,7 @@ class Nginx extends Safe
                 echo "\n";
                 ob_start();
                 system('ps -ef | grep nginx');
+                echo 111;
                 $ret = ob_get_contents();
                 ob_end_clean();
                 if ($silent) {
@@ -99,7 +100,7 @@ class Nginx extends Safe
                     return false;
                 } else {
                     system('cat ' . $this->config['buffer']);
-                    API::fail('配置有误，请确定配置无误，再尝试重载。');
+                    echo('配置有误，请确定配置无误，再尝试重载。');
                 }
                 break;
         }
@@ -112,7 +113,7 @@ class Nginx extends Safe
     {
         switch (self::testStatus()) {
             case 200:
-                passthru($this->config['bin'] . ' -s stop && ' . $this->config['bin'] . ' -s start');
+                passthru($this->config['bin'] . ' -s stop && ' . $this->config['bin'] . '');
                 system('ps -ef | grep nginx');
                 break;
             case 400:
@@ -127,13 +128,14 @@ class Nginx extends Safe
      */
     private function test()
     {
+        system($this->config['bin'] . ' -t 2>' . $this->config['buffer']);
         switch (self::testStatus()) {
             case 200:
                 echo '配置一切正常。';
                 break;
             case 400:
                 system('cat ' . $this->config['buffer']);
-                API::fail('配置有误，请确定配置无误，再尝试重载。');
+                echo '配置有误，请确定配置无误，再尝试重载。';
                 break;
         }
     }

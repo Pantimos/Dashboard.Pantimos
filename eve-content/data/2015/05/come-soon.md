@@ -1,3 +1,0 @@
-## Pantimos
-
-Come soon.

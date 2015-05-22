@@ -12,3 +12,4 @@ nginx.log
 ~*
 
 eve-content/theme/*_cache
+eve-content/data/mock.pantimos.io

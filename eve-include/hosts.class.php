@@ -25,7 +25,7 @@ ff02::1             ip6-allnodes
 ff02::2             ip6-allrouters
 
 # Base Env Hosts
-127.0.0.1           pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io
+127.0.0.1           pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io editor.mock.pantimos.io
 
 # hhvm
 140.211.166.134     dl.hhvm.com
@@ -90,7 +90,7 @@ ff02::2             ip6-allrouters
             $data = self::testStatus();
         }
         if (!$data) {
-            API::fail("1请检查输入内容。", true);
+            API::fail("请检查输入内容。", true);
         }
 
         return $data;

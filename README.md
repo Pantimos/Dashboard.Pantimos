@@ -3,4 +3,4 @@ Dashboard for Pantimos.
 
 ## Mock
 
-- http://mock.pantimos.io/mock-editor.html
+- http://editor.mock.pantimos.io
