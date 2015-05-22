@@ -21,8 +21,7 @@ class Project extends Safe
             'ip6-loopback',
             'dl.hhvm.com'
         ],
-        'base'      => '
-##
+        'base'      => '##
 # {$DOMAIN_NAME}
 ##
 server {
@@ -211,9 +210,9 @@ server {
     private function optButtons()
     {
         echo '<div class="btn-group control-btn" role="group">
-            <a class="btn btn-default" href="./?mod=project&action=help">help</a>
-            <a class="btn btn-default" href="./?mod=project&action=create">create</a>
-            <a class="btn btn-default" href="./?mod=project&action=destroy">destroy</a>
+            <a class="btn btn-default" href="./?pantimos_mod=project&pantimos_action=help">help</a>
+            <a class="btn btn-default" href="./?pantimos_mod=project&pantimos_action=create">create</a>
+            <a class="btn btn-default" href="./?pantimos_mod=project&pantimos_action=destroy">destroy</a>
         </div>
 
 <div class="panel panel-default panel-edit-project hide">
@@ -223,9 +222,9 @@ server {
             <div class="col-lg-6">
                 <div class="input-group">
                     <input type="text" class="form-control input-project-name"
-                           placeholder="example.code.io">
+                           placeholder="example.pantimos.io">
                     <span class="input-group-btn">
-                        <a class="btn btn-default btn-project-do" href="./?mod=project&action=do">ok</a>
+                        <a class="btn btn-default btn-project-do" href="./?pantimos_mod=project&pantimos_action=do">ok</a>
                     </span>
                 </div>
             </div>

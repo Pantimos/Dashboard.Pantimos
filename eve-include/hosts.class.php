@@ -25,7 +25,7 @@ ff02::1             ip6-allnodes
 ff02::2             ip6-allrouters
 
 # Base Env Hosts
-127.0.0.1           code.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io
+127.0.0.1           pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io
 
 # hhvm
 140.211.166.134     dl.hhvm.com
@@ -212,8 +212,8 @@ ff02::2             ip6-allrouters
     private function optButtons()
     {
         echo '<div class="btn-group control-btn" role="group">
-    <a class="btn btn-default" href="./?mod=hosts&action=view">view</a>
-    <a class="btn btn-default" href="./?mod=hosts&action=restore">restore</a>
+    <a class="btn btn-default" href="./?pantimos_mod=hosts&pantimos_action=view">view</a>
+    <a class="btn btn-default" href="./?pantimos_mod=hosts&pantimos_action=restore">restore</a>
     <a class="btn btn-default btn-edit-hosts" href="javascript:void(0)">edit</a>
 </div>
 
@@ -224,9 +224,9 @@ ff02::2             ip6-allrouters
             <div class="col-lg-6">
                 <div class="input-group">
                     <input type="text" class="form-control input-host-add"
-                           placeholder="example.code.io@127.0.0.1 || example.code.io">
+                           placeholder="example.pantimos.io@127.0.0.1 || example.pantimos.io">
                     <span class="input-group-btn">
-                        <a class="btn btn-default btn-host-add" href="./?mod=hosts&action=add">add</a>
+                        <a class="btn btn-default btn-host-add" href="./?pantimos_mod=hosts&pantimos_action=add">add</a>
                     </span>
                 </div>
             </div>
@@ -235,9 +235,9 @@ ff02::2             ip6-allrouters
             <div class="col-lg-6">
                 <div class="input-group">
                     <input type="text" class="form-control input-host-remove"
-                           placeholder="example.code.io@127.0.0.1 || example.code.io">
+                           placeholder="example.pantimos.io@127.0.0.1 || example.pantimos.io">
                     <span class="input-group-btn">
-                        <a class="btn btn-default btn-host-remove" href="./?mod=hosts&action=remove">remove</a>
+                        <a class="btn btn-default btn-host-remove" href="./?pantimos_mod=hosts&pantimos_action=remove">remove</a>
                     </span>
                 </div>
             </div>

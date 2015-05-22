@@ -64,7 +64,7 @@ $(function () {
         .on('HOST:ADD', function (e, target) {
             $.getJSON(target.attr('href'), {"data": $('.input-host-add').val()}, function (data) {
                 if (data && data.code === 200) {
-                    location.href = '/?mod=hosts&action=view';
+                    location.href = '/?pantimos_mod=hosts&pantimos_action=view';
                 } else {
                     alert(data && data.desc);
                 }
@@ -73,7 +73,7 @@ $(function () {
         .on('HOST:REMOVE', function (e, target) {
             $.getJSON(target.attr('href'), {"data": $('.input-host-remove').val()}, function (data) {
                 if (data && data.code === 200) {
-                    location.href = '/?mod=hosts&action=view';
+                    location.href = '/?pantimos_mod=hosts&pantimos_action=view';
                 } else {
                     alert(data && data.desc);
                 }
@@ -97,7 +97,7 @@ $(function () {
             }
             $.getJSON(target.attr('href'), {"data": data, "do": route.action}, function (data) {
                 if (data && data.code === 200) {
-                    location.href = '/?mod=project&action=help';
+                    location.href = '/?pantimos_mod=project&pantimos_action=help';
                 } else {
                     alert(data && data.desc);
                 }

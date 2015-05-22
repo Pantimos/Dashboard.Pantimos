@@ -60,9 +60,9 @@ class Nginx extends Safe
     private function optButtons()
     {
         echo '<div class="btn-group control-btn" role="group">
-            <a class="btn btn-default" href="./?mod=nginx&action=test">test</a>
-            <a class="btn btn-default" href="./?mod=nginx&action=reload">reload</a>
-            <a class="btn btn-default btn-nginx-restart" href="./?mod=nginx&action=restart">restart</a>
+            <a class="btn btn-default" href="./?pantimos_mod=nginx&pantimos_action=test">test</a>
+            <a class="btn btn-default" href="./?pantimos_mod=nginx&pantimos_action=reload">reload</a>
+            <a class="btn btn-default btn-nginx-restart" href="./?pantimos_mod=nginx&pantimos_action=restart">restart</a>
         </div>';
     }
 

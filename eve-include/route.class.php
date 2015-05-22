@@ -24,8 +24,8 @@ class Route extends Safe
     function __construct()
     {
         $this->args = core::init_args(func_get_args());
-        $this->module = self::getQueryKey('mod');
-        $this->action = self::getQueryKey('action');
+        $this->module = self::getQueryKey('pantimos_mod');
+        $this->action = self::getQueryKey('pantimos_action');
 
         switch ($this->module) {
             case 'nginx':
@@ -51,6 +51,15 @@ class Route extends Safe
                     $this->action = "help";
                 }
                 new Project(['action' => $this->action]);
+                break;
+            case 'mock':
+                $mockHost = self::getQueryKey('pantimos_hostname');
+                if (empty($this->action) && !empty($mockHost)) {
+                    $this->action = "mock";
+                } elseif (empty($this->action)) {
+                    $this->action = "view";
+                }
+                new Mock(['action' => $this->action, 'host' => $mockHost, 'query' => self::getQueryKey('pantimos_query')]);
                 break;
             case 'doc':
                 if (empty($this->action)) {

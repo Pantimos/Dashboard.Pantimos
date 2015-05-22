@@ -1,0 +1,3 @@
+[submodule "eve-bin/Mock"]
+	path = eve-bin/Mock
+	url = git@github.com:imHuaiDan/Mock.git

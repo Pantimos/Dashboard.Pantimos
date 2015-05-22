@@ -34,7 +34,14 @@ class Template extends RainTPL
 
         date_default_timezone_set('PRC');
 
-        $this->initTemplate();
+        ob_start();
+        $mod = new Route();
+        $modTpl = ob_get_contents();
+        ob_end_clean();
+
+        $noTplRender = $mod->module === 'mock';
+        // mock 模块渲染控制面板主题
+        $this->initTemplate($noTplRender);
 
         if ($this->args['GZIP'] && core::gzip_accepted()) {
             if (!defined('HHVM_VERSION')) {
@@ -46,13 +53,13 @@ class Template extends RainTPL
             }
         }
 
-        if (!core::isAjax()) {
+        if (!core::isAjax() && empty($noTplRender)) {
             $this->header();
         }
 
-        $mod = new Route();
+        echo $modTpl;
 
-        if (!core::isAjax()) {
+        if (!core::isAjax() && empty($noTplRender)) {
             if (empty($mod->module)) {
                 $this->defaultPage();
             }
@@ -175,11 +182,14 @@ class Template extends RainTPL
     }
 
     /**
-     * * THE TEMPLATE CLASS INIT
+     * 初始化控制面板
      * TODO:增加定义主题和缓存路径以及增加MEMCACHE支持
      */
-    private function initTemplate()
+    private function initTemplate($empty = false)
     {
+        if ($empty) {
+            return true;
+        }
         //init static post data;
         $this->get_static_posts();
         if (file_exists(FILE_PREFIX . "content/theme/" . THEME . "/")) {
@@ -194,7 +204,7 @@ class Template extends RainTPL
     }
 
     /**
-     * THE TEMPLATE HEADER MODULE
+     * 控制面板header
      */
     private function header()
     {
@@ -210,7 +220,7 @@ class Template extends RainTPL
     }
 
     /**
-     * THE TEMPLATE FOOTER MODULE
+     * 控制面板调试输出
      */
     private function footer()
     {
@@ -234,6 +244,9 @@ class Template extends RainTPL
         echo $this->tpl->draw('footer', $return_string = true);
     }
 
+    /**
+     * 控制面板默认页面
+     */
     private function defaultPage()
     {
         echo $this->tpl->draw('default', $return_string = true);

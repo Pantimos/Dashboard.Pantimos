@@ -63,10 +63,10 @@ class Redis2 extends Safe
     private function optButtons()
     {
         echo '<div class="btn-group control-btn" role="group">
-    <a class="btn btn-default" href="./?mod=redis&action=info">info</a>
-    <a class="btn btn-default" href="./?mod=redis&action=save">save</a>
-    <a class="btn btn-default" href="./?mod=redis&action=flush">flush</a>
-    <a class="btn btn-default" href="./?mod=redis&action=flush-mock">flush(mock)</a>
+    <a class="btn btn-default" href="./?pantimos_mod=redis&pantimos_action=info">info</a>
+    <a class="btn btn-default" href="./?pantimos_mod=redis&pantimos_action=save">save</a>
+    <a class="btn btn-default" href="./?pantimos_mod=redis&pantimos_action=flush">flush</a>
+    <a class="btn btn-default" href="./?pantimos_mod=redis&pantimos_action=flush-mock">flush(mock)</a>
 </div>';
     }
 
