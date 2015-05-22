@@ -9,8 +9,8 @@ class Project extends Safe
 {
     private $args = [];
     private $config = [
-        'blackList'=>['dashboard.pantimos.io','mock.pantimos.io'],
-        'base' => '
+        'blackList' => ['dashboard.pantimos.io', 'mock.pantimos.io'],
+        'base'      => '
 ##
 # {$DOMAIN_NAME}
 ##
@@ -107,16 +107,20 @@ server {
         if (empty($_GET['data']) || empty($_GET['do'])) {
             die("请检查输入内容");
         } else {
+
+            $domainName = strtolower(trim($_GET['data']));
+            if (empty($domainName)) {
+                die("请检查输入内容");
+            }
+
+            $domainPath = vmRootDir . $domainName;
+
             switch ($_GET['do']) {
                 case 'create':
-                    $domainName = strtolower(trim($_GET['data']));
-                    if (empty($domainName)) {
-                        die("请检查输入内容");
-                    }
-                    $domainPath = vmRootDir . $domainName;
                     if (file_exists($domainPath)) {
                         die("项目已经存在，如果想重新初始化，请先删除项目。");
                     }
+
                     system('mkdir -p ' . $domainPath . '/public');
                     system('mkdir -p ' . $domainPath . '/conf');
                     system('mkdir -p ' . $domainPath . '/logs');
@@ -127,11 +131,20 @@ server {
                     die('ok');
                     break;
                 case 'destroy':
+                    foreach ($this->config['blackList'] as $key) {
+                        $pos = strpos($domainPath, $key);
+                        echo $pos . "\n";
+                        if ($pos) {
+                            die("不允许删除保留域名。");
+                        }
+                    }
+                    if (!file_exists($domainPath)) {
+                        die("目标不存在或已被删除");
+                    }
+                    system('rm -rf ' . $domainPath);
+                    die('ok');
                     break;
             }
-            $domain = trim($_GET['data']);
-
-            var_dump($domain);
         }
 
     }
