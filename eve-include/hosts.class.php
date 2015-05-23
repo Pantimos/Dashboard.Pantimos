@@ -25,7 +25,7 @@ ff02::1             ip6-allnodes
 ff02::2             ip6-allrouters
 
 # Base Env Hosts
-127.0.0.1           pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io editor.mock.pantimos.io dummayimage.pantimos.io dummyimage.com www.dummyimage.com
+127.0.0.1           pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io editor.mock.pantimos.io dummayimage.pantimos.io
 
 # hhvm
 140.211.166.134     dl.hhvm.com

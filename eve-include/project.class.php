@@ -195,7 +195,7 @@ server {
 
                 system('rm -rf ' . $domainPath);
                 $hosts = new Hosts(func_get_args());
-                $hosts->add(false, $domainName);
+                $hosts->remove(false, $domainName);
                 $nginx = new Nginx(func_get_args());
                 $nginx->reload(true);
                 API::success("目标成功删除。", true);

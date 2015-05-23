@@ -81,7 +81,6 @@ class Nginx extends Safe
                 echo "\n";
                 ob_start();
                 system('ps -ef | grep nginx');
-                echo 111;
                 $ret = ob_get_contents();
                 ob_end_clean();
                 if ($silent) {
