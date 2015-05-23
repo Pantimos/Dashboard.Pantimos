@@ -292,10 +292,38 @@ class Core
 
     /**
      * 判断是否是Ajax请求
+     *
      * @return bool
      */
     public function isAjax()
     {
         return isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && $_SERVER["HTTP_X_REQUESTED_WITH"] == 'XMLHttpRequest' ? true : false;
     }
+
+
+    /**
+     * 是否有callback
+     * @return bool
+     */
+    public function isCallback()
+    {
+        $useCallback = true;
+        // 限制callback name长度为30字符长度
+        if (isset($_GET['CallbackName'])) {
+            if (strlen($_GET['CallbackName']) && strlen($_GET['CallbackName']) < 30) {
+                $callbackName = $_GET['CallbackName'];
+            } else {
+                $callbackName = 'callback';
+            }
+        } else {
+            $callbackName = "callback";
+        }
+        $useCallbackName = $_GET[ $callbackName ] ? $_GET[ $callbackName ] : "";
+        if (empty($useCallbackName)) {
+            $useCallback = false;
+        }
+
+        return $useCallback;
+    }
+
 }

@@ -18,13 +18,14 @@ class API extends Safe
     /**
      * 安全输出JSON
      *
-     * @param $data
+     * @param      $data
+     * @param bool $encode
      */
     static function json($data, $encode = true)
     {
         header('X-Content-Type-Options: nosniff');
         header('Content-Type:application/json;charset=utf-8;');
-        if($encode){
+        if ($encode) {
             $data = json_encode($data);
         }
         $data = str_replace('/\u2028/g', '\\u2028', $data);
@@ -41,7 +42,7 @@ class API extends Safe
      *
      * @param $data
      */
-    static function callbackScript($data)
+    static function callbackScript($data, $encode = true)
     {
         $useCallback = true;
         // 限制callback name长度为30字符长度
@@ -66,7 +67,9 @@ class API extends Safe
 
         header('X-Content-Type-Options: nosniff');
         header('Content-Type:application/x-javascript;charset=utf-8;');
-        $data = json_encode($data);
+        if($encode){
+            $data = json_encode($data);
+        }
         $data = str_replace('/\u2028/g', '\\u2028', $data);
         $data = str_replace('/\u2029/g', '\\u2029', $data);
         // Only allow "[","]","a-zA-Z0123456789_", "$" and "." characters.

@@ -12,7 +12,11 @@ class Mock extends Safe
     private $args = [];
     private $config = [
         'bin'      => 'node ' . vmRootDir . vmDomainName . '/public/eve-bin/Mock/bin/cli',
-        'dataRoot' => vmRootDir . vmDomainName . '/public/eve-content/data/'
+        'dataRoot' => vmRootDir . vmDomainName . '/public/eve-content/data/',
+        'wrapper'  => [
+            "start" => "module.exports = function () {/*!\n",
+            "end"   => "\n*/};"
+        ]
     ];
     private $query = "";
     private $host = "";
@@ -93,11 +97,22 @@ class Mock extends Safe
         $data = self::analyseData($config);
         switch ($data['code']) {
             case 200:
-                API::json((file_get_contents($data['file'])), false);
+
+                $cmd = $this->config['bin'] . ' --tpl ' . '' . $data['file'] . '';
+                ob_start();
+                system($cmd);
+                $output = ob_get_contents();
+                ob_end_clean();
+
+                if (core::isCallback()) {
+                    API::callbackScript($output, false);
+                } else {
+                    API::json($output, false);
+                }
                 break;
             case 404:
-                echo 'cat "test">' . $data['file'];
-                system('cat test>' . $data['file']);
+                system('echo "' . $this->config['wrapper']['start'] . $this->config['wrapper']['end'] . '" >' . $data['file']);
+                echo $data['file'] . "创建成功。";
                 break;
         }
     }
@@ -107,11 +122,21 @@ class Mock extends Safe
         $data = self::analyseData($config);
         switch ($data['code']) {
             case 200:
-                echo file_get_contents($data['file']);
+                $cmd = $this->config['bin'] . ' --tpl ' . '"' . $data['file'] . '"';
+                ob_start();
+                system($cmd);
+                $output = ob_get_contents();
+                ob_end_clean();
+
+                if (core::isCallback()) {
+                    API::callbackScript($output, false);
+                } else {
+                    echo $output;
+                }
                 break;
             case 404:
-                echo 'cat "test">' . $data['file'];
-                system('cat test>' . $data['file']);
+                system('echo "' . $this->config['wrapper']['start'] . $this->config['wrapper']['end'] . '">' . $data['file']);
+                echo $data['file'] . "创建成功。";
                 break;
         }
 
@@ -120,45 +145,7 @@ class Mock extends Safe
 
     private function view()
     {
-
-
-//
-//        $query = preg_split( '/\//', PATH );
-//        array_shift( $query );
-//        $count = count( $query );
-//        if ( empty( $query[ $count - 1 ] ) ) {
-//            array_pop( $query );
-//        }
-////if ( empty( $query ) ) {
-////    exit( '请选择接口' );
-////}
-//
-//// 限制callback name长度为30字符长度
-//        if ( isset($_REQUEST['CallbackName']) ) {
-//            if ( strlen( $_REQUEST['CallbackName'] ) && strlen( $_REQUEST['CallbackName'] ) < 30 ) {
-//                $callbackName = $_REQUEST['CallbackName'];
-//            } else {
-//                $callbackName = 'callback';
-//            }
-//        } else {
-//            $callbackName = false;
-//        }
-//        if ( $callbackName ) {
-//            $useCallback = $_REQUEST[ $callbackName ] ? $_REQUEST[ $callbackName ] : false;
-//        } else {
-//            $useCallback = $_REQUEST['callback'] ? $_REQUEST['callback'] : false;
-//        }
-//
-//        $params = $_REQUEST;
-//        unset( $params['_uriPath_'] );
-//        unset( $params[ $callbackName ] );
-//
-//#if (!isset($apiList[$query[0]])) exit('接口:' . $query[0] . '不存在!');
-//#if (!in_array($query[1], $apiList[$query[0]])) exit('接口:' . $query[1] . '不存在!');
-//
-//
-//
-//        echo 'view'.$this->config['bin'];
+        
     }
 
 }
