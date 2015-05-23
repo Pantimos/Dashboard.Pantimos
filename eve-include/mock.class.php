@@ -277,7 +277,7 @@ helpers: {
 
     private function view()
     {
-        echo "晚点写";
+        echo "实现OKAY,界面晚点写";
     }
 
 }
