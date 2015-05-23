@@ -25,7 +25,7 @@ ff02::1             ip6-allnodes
 ff02::2             ip6-allrouters
 
 # Base Env Hosts
-127.0.0.1           pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io editor.mock.pantimos.io
+127.0.0.1           pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io editor.mock.pantimos.io dummayimage.pantimos.io dummyimage.com www.dummyimage.com
 
 # hhvm
 140.211.166.134     dl.hhvm.com
@@ -79,8 +79,8 @@ ff02::2             ip6-allrouters
     private function checkParams($data)
     {
         if (isset($data)) {
-            if (!(gettype($data) == 'string' && self::isValidateURL($data)) || (gettype($data) == 'object' && self::isValidateURL($data['host']))) {
-                API::fail("请检查输入内容。", true);
+            if (!(gettype($data) == 'string' && self::isValidateURL($data)) && (gettype($data) == 'object' && self::isValidateURL($data['host']))) {
+                API::fail("2请检查输入内容。", true);
             } elseif (gettype($data) == 'string' && self::isValidateURL($data)) {
                 $data = self::testStatus($data);
             } else if (gettype($data) == 'object' && self::isValidateURL($data['host'])) {
@@ -90,7 +90,7 @@ ff02::2             ip6-allrouters
             $data = self::testStatus();
         }
         if (!$data) {
-            API::fail("请检查输入内容。", true);
+            API::fail("1请检查输入内容。", true);
         }
 
         return $data;
@@ -163,7 +163,7 @@ ff02::2             ip6-allrouters
      *
      * @return array|bool
      */
-    private function testStatus($data = "")
+    private function testStatus($data = null)
     {
         if (isset($data)) {
             $this->query = $data;

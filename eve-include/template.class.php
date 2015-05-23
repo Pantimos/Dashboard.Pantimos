@@ -39,7 +39,7 @@ class Template extends RainTPL
         $modTpl = ob_get_contents();
         ob_end_clean();
 
-        $noTplRender = $mod->module === 'mock';
+        $noTplRender = ($mod->module === 'mock'&& $mod->action === 'emulate');
         // mock 模块渲染控制面板主题
         $this->initTemplate($noTplRender);
 

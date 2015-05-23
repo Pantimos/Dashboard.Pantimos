@@ -189,8 +189,8 @@ helpers: {
     {
         echo '<div class="btn-group control-btn" role="group">
             <a class="btn btn-default" href="./?pantimos_mod=mock&pantimos_action=view">view</a>
-            <a class="btn btn-default" href="./?pantimos_mod=mock&pantimos_action=restart">create</a>
-            <a class="btn btn-default" href="./?pantimos_mod=mock&pantimos_action=destroy">destroy</a>
+            <a class="btn btn-default" href="./?pantimos_mod=mock&pantimos_action=create">create</a>
+            <a class="btn btn-default" href="./?pantimos_mod=mock&pantimos_action="destroy>destroy</a>
         </div>';
     }
 
@@ -277,7 +277,7 @@ helpers: {
 
     private function view()
     {
-
+        echo "晚点写";
     }
 
 }

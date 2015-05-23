@@ -18,7 +18,7 @@ class Route extends Safe
 {
 
     private $args = [];
-    private $action = "";
+    public $action = "";
     public $module = "";
 
     function __construct()
