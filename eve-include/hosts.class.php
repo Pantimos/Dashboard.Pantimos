@@ -13,6 +13,7 @@ class Hosts extends Safe
     private $config = [
         'bin'    => '/etc/hosts',
         'buffer' => vmRootDir . vmDomainName . '/public/hosts.log',
+        'list'   => 'pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io editor.mock.pantimos.io mockimage.pantimos.io',
         'base'   => '# Base Hosts
 127.0.0.1           localhost
 
@@ -49,6 +50,7 @@ ff02::2             ip6-allrouters
                     break;
             }
         } else {
+            self::bindInfo();
             self::optButtons();
             echo '<textarea id="console-result">';
             switch ($action) {
@@ -204,6 +206,19 @@ ff02::2             ip6-allrouters
             'host' => $host,
             'ip'   => $ip
         ];
+    }
+
+
+    //Temp
+    private function bindInfo(){
+        echo('<p>请将下面的HOSTS绑定到你当前的电脑中:</p><p><input style="width: 100%;color: #AB5C10;background-color: #000;padding: 4px;margin-bottom: 6px;" type="text" value="');
+        ob_start();
+        system("ifconfig | awk -F'addr:|Bcast' '/Bcast/{print $2}'");
+        echo $this->config['list']."\n";
+        $ret = ob_get_contents();
+        ob_end_clean();
+        $ret = str_replace("\n", "", $ret);
+        echo $ret.'"></p>';
     }
 
     /**
