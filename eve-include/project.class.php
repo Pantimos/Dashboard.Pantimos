@@ -34,11 +34,17 @@ server {
     client_max_body_size 100m;
     server_name_in_redirect on;
 
-    set     \$APP_DIR {$DOMAIN_PATH};
-    root    \$APP_DIR/public;
-    index   index.php index.html index.htm;
+    root        {$DOMAIN_PATH}/public;
+    index       index.php index.html index.htm;
 
     location / {
+        if (\$request_uri ~* ^/need_mock_api/api.name$){
+            proxy_pass http://mock.pantimos.io;
+        }
+        if (\$request_uri ~* ^/favicon.ico$){
+            proxy_pass http://dashboard.pantimos.io;
+        }
+
         try_files \$uri \$uri/ /index.php?q=\$uri&\$args;
     }
 
@@ -50,8 +56,7 @@ server {
         include        fastcgi_params;
     }
 
-}
-'
+}'
     ];
     private $data = null;
     private $do = null;
