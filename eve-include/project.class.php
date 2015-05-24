@@ -27,7 +27,6 @@ class Project extends Safe
 server {
     listen       80;
     server_name  {$DOMAIN_NAME};
-    server_name  127.0.0.1;
 
     access_log  {$DOMAIN_PATH}/logs/access.log;
     error_log   {$DOMAIN_PATH}/logs/error.log;

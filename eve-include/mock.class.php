@@ -191,6 +191,8 @@ helpers: {
             <a class="btn btn-default" href="./?pantimos_mod=mock&pantimos_action=view">view</a>
             <a class="btn btn-default" href="./?pantimos_mod=mock&pantimos_action=create">create</a>
             <a class="btn btn-default" href="./?pantimos_mod=mock&pantimos_action="destroy>destroy</a>
+            <a class="btn btn-default" href="//editor.mock.pantimos.io" target="_blank">Mock Data</a>
+            <a class="btn btn-default" href="//mockimage.pantimos.io" target="_blank">Mock Image</a>
         </div>';
     }
 
