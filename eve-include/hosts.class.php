@@ -13,7 +13,7 @@ class Hosts extends Safe
     private $config = [
         'bin'    => '/etc/hosts',
         'buffer' => vmRootDir . vmDomainName . '/public/hosts.log',
-        'list'   => 'pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io editor.mock.pantimos.io mockimage.pantimos.io',
+        'list'   => 'pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io editor.mock.pantimos.io mockimage.pantimos.io files.pantimos.io',
         'base'   => '# Base Hosts
 127.0.0.1           localhost
 
@@ -26,7 +26,7 @@ ff02::1             ip6-allnodes
 ff02::2             ip6-allrouters
 
 # Base Env Hosts
-127.0.0.1           pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io editor.mock.pantimos.io mockimage.pantimos.io
+127.0.0.1           pantimos.io www.pantimos.io pma.pantimos.io dashboard.pantimos.io mock.pantimos.io editor.mock.pantimos.io mockimage.pantimos.io files.pantimos.io
 
 # hhvm
 140.211.166.134     dl.hhvm.com

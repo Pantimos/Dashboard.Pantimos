@@ -12,14 +12,20 @@ class Project extends Safe
     private $args = [];
     private $config = [
         'blackList' => [
-            'dashboard.pantimos.io',
-            'mock.pantimos.io',
-            'pma.pantimos.io',
             'localhost',
-            'Pantimos',
             'ip6-localhost',
             'ip6-loopback',
-            'dl.hhvm.com'
+            'dl.hhvm.com',
+            'Pantimos',
+            'files.pantimos.io',
+            'pantimos.io',
+            'www.pantimos.io',
+            'pma.pantimos.io',
+            'dashboard.pantimos.io',
+            'mock.pantimos.io',
+            'editor.mock.pantimos.io',
+            'mockimage.pantimos.io',
+            'files.pantimos.io'
         ],
         'base'      => '##
 # {$DOMAIN_NAME}
