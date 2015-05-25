@@ -38,10 +38,11 @@ server {
     index       index.php index.html index.htm;
 
     location / {
-        if (\$request_uri ~* ^/need_mock_api/api.name$){
+        if (\$request_uri ~* ^/need_mock_api/api.name\$){
+            rewrite \"(.*)\" /{$DOMAIN_NAME}/\$1 break;
             proxy_pass http://mock.pantimos.io;
         }
-        if (\$request_uri ~* ^/favicon.ico$){
+        if (\$request_uri ~* ^/favicon.ico\$){
             proxy_pass http://dashboard.pantimos.io;
         }
 
