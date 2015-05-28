@@ -1,20 +1,16 @@
 $(function () {
     'use strict';
 
-
-    function initConsole(){
-        var consoleBox = document.getElementById('console-result');
-        if (consoleBox) {
-            CodeMirror.fromTextArea(consoleBox, {
-                lineNumbers  : true,
-                mode         : 'shell',
-                matchBrackets: true,
-                theme        : 'monokai'
-            });
-        }
+    var consoleBox = document.getElementById('console-result');
+    if (consoleBox) {
+        console.log(code)
+        var code = CodeMirror.fromTextArea(consoleBox, {
+            lineNumbers  : true,
+            mode         : 'shell',
+            matchBrackets: true,
+            theme        : 'monokai'
+        });
     }
-
-    initConsole();
 
     function initRoute () {
         var oRoute = location.search.split('?'), arr = {};
@@ -113,9 +109,7 @@ $(function () {
                             for (var i = 0, j = data.data.length; i < j; i++) {
                                 ret += data.data[i] + "\n";
                             }
-                            $('#console-result').val(ret);
-                            initConsole();
-
+                            code.setValue(ret);
                         } else {
                             alert(data && data.desc);
                         }
