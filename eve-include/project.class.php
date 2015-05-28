@@ -75,6 +75,9 @@ server {
 
         if (core::isAjax()) {
             switch ($action) {
+                case 'list':
+                    self::listProject();
+                    break;
                 case 'do':
                     self::doJob();
                     break;
@@ -83,8 +86,7 @@ server {
             self::optButtons();
             echo '<textarea id="console-result">';
             switch ($action) {
-                case 'help':
-                    self::help();
+                case 'list':
                     break;
                 case 'create':
                     self::create();
@@ -103,18 +105,29 @@ server {
     private function showProject()
     {
         ob_start();
-        system("tree " . vmRootDir . " -L 1");
+        system("tree " . vmRootDir . " -id -L 1");
         $ret = ob_get_contents();
         ob_end_clean();
-        $ret = str_replace(vmRootDir, "当前存在项目目录: \n", $ret);
-        $ret = str_replace(', 0 files', '', $ret);
-        echo $ret;
+        $ret = str_replace(vmRootDir, "", $ret);
+
+        $arr = explode("\n", $ret);
+        $data = [
+            'code' => 200,
+            'data' => []
+        ];
+        foreach ($arr as $key => $val) {
+            $val = trim($val);
+            if ($val && !strstr($val, 'directories')) {
+                array_push($data['data'], $val);
+            }
+        }
+        API::json($data);
     }
 
     /**
-     * 显示帮助
+     * 显示项目
      */
-    private function help()
+    private function listProject()
     {
         self::showProject();
     }
@@ -221,7 +234,7 @@ server {
     private function optButtons()
     {
         echo '<div class="btn-group control-btn" role="group">
-            <a class="btn btn-default" href="./?pantimos_mod=project&pantimos_action=help">help</a>
+            <a class="btn btn-default" href="./?pantimos_mod=project&pantimos_action=list">list</a>
             <a class="btn btn-default" href="./?pantimos_mod=project&pantimos_action=create">create</a>
             <a class="btn btn-default" href="./?pantimos_mod=project&pantimos_action=destroy">destroy</a>
         </div>

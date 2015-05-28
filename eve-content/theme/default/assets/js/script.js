@@ -1,15 +1,20 @@
 $(function () {
     'use strict';
 
-    var consoleBox = document.getElementById('console-result');
-    if (consoleBox) {
-        var cm = CodeMirror.fromTextArea(consoleBox, {
-            lineNumbers  : true,
-            mode         : 'shell',
-            matchBrackets: true,
-            theme        : 'monokai'
-        });
+
+    function initConsole(){
+        var consoleBox = document.getElementById('console-result');
+        if (consoleBox) {
+            CodeMirror.fromTextArea(consoleBox, {
+                lineNumbers  : true,
+                mode         : 'shell',
+                matchBrackets: true,
+                theme        : 'monokai'
+            });
+        }
     }
+
+    initConsole();
 
     function initRoute () {
         var oRoute = location.search.split('?'), arr = {};
@@ -88,8 +93,8 @@ $(function () {
         }
         $('.masthead-nav > .nav-home').addClass('active');
     }());
-    // 初始化额外的编辑框
-    (function editPanel () {
+    // 初始化额外的编辑框 && etc.
+    (function pageAction () {
         var route = initRoute();
         switch (route['pantimos_mod']) {
             case 'hosts':
@@ -101,10 +106,24 @@ $(function () {
                 if (route['pantimos_action'] === 'create' || route['pantimos_action'] === 'destroy') {
                     body.trigger('PROJECT:SWITCH');
                 }
+                if (route['pantimos_action'] === 'help') {
+                    $.getJSON('/?pantimos_mod=project', {'pantimos_action': 'list'}, function (data) {
+                        if (data && data.code === 200) {
+                            var ret = '';
+                            for (var i = 0, j = data.data.length; i < j; i++) {
+                                ret += data.data[i] + "\n";
+                            }
+                            $('#console-result').val(ret);
+                            initConsole();
+
+                        } else {
+                            alert(data && data.desc);
+                        }
+                    })
+                }
                 break;
         }
-    }())
-
+    }());
 
 
     //HOST
