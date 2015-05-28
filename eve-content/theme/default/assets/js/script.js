@@ -102,7 +102,7 @@ $(function () {
                 if (route['pantimos_action'] === 'create' || route['pantimos_action'] === 'destroy') {
                     body.trigger('PROJECT:SWITCH');
                 }
-                if (route['pantimos_action'] === 'help') {
+                if (!route['pantimos_action'] || route['pantimos_action'] === 'list') {
                     $.getJSON('/?pantimos_mod=project', {'pantimos_action': 'list'}, function (data) {
                         if (data && data.code === 200) {
                             var ret = '';
