@@ -1,15 +1,15 @@
 <?php
+
+if (!defined('FILE_PREFIX')) include "../error-forbidden.php";
+
 /**
  *  RainTPL
  *  -------
  *  Realized by Federico Ulfo & maintained by the Rain Team
- *  Distributed under GNU/LGPL 3 License
+ *  Distributed under the MIT license http://www.opensource.org/licenses/mit-license.php
  *
  * @version 2.7.2
  */
-
-if (!defined('FILE_PREFIX')) die('Silence is golden.');
-
 class RainTPL extends Debug
 {
 
@@ -103,6 +103,13 @@ class RainTPL extends Debug
      */
     static $debug = false;
 
+    /**
+     * Path for the root directory
+     *
+     * @var string
+     */
+    static $root_dir = '';
+
     // -------------------------
 
 
@@ -117,11 +124,11 @@ class RainTPL extends Debug
      */
     public $var = [];
 
-    protected $tpl = [], // variables to keep the template directories and info
-        $cache = false, // static cache enabled / disabled
-        $cache_id = null; // identify only one cache
+    protected $tpl = [],        // variables to keep the template directories and info
+        $cache = false,        // static cache enabled / disabled
+        $cache_id = null;       // identify only one cache
 
-    protected static $config_name_sum = []; // takes all the config to create the md5 of the file
+    protected static $config_name_sum = [];   // takes all the config to create the md5 of the file
 
     // -------------------------
 
@@ -175,7 +182,10 @@ class RainTPL extends Debug
             extract($this->var);
             include $this->tpl['compiled_filename'];
             unset($this->tpl);
-        } // cache or return_string are enabled
+        }
+
+
+        // cache or return_string are enabled
         // rain get the output buffer to save the output in the cache or to return it as string
 
         else {
@@ -248,6 +258,7 @@ class RainTPL extends Debug
     }
 
 
+
     // check if has to compile the template
     // return true if the template has changed
     protected function check_template($tpl_name)
@@ -255,13 +266,13 @@ class RainTPL extends Debug
 
         if (!isset($this->tpl['checked'])) {
 
-            $tpl_basename = basename($tpl_name); // template basename
-            $tpl_basedir = strpos($tpl_name, "/") ? dirname($tpl_name) . '/' : null; // template basedirectory
-            $this->tpl['template_directory'] = self::$tpl_dir . $tpl_basedir; // template directory
-            $this->tpl['tpl_filename'] = $this->tpl['template_directory'] . $tpl_basename . '.' . self::$tpl_ext; // template filename
-            $temp_compiled_filename = self::$cache_dir . $tpl_basename . "." . md5($this->tpl['template_directory'] . serialize(self::$config_name_sum));
-            $this->tpl['compiled_filename'] = $temp_compiled_filename . '.rtpl.php'; // cache filename
-            $this->tpl['cache_filename'] = $temp_compiled_filename . '.s_' . $this->cache_id . '.rtpl.php'; // static cache filename
+            $tpl_basename = basename($tpl_name);                                                        // template basename
+            $tpl_basedir = strpos($tpl_name, "/") ? dirname($tpl_name) . '/' : null;                        // template basedirectory
+            $this->tpl['template_directory'] = self::$tpl_dir . $tpl_basedir;                                // template directory
+            $this->tpl['tpl_filename'] = self::$root_dir . $this->tpl['template_directory'] . $tpl_basename . '.' . self::$tpl_ext;    // template filename
+            $temp_compiled_filename = self::$root_dir . self::$cache_dir . $tpl_basename . "." . md5($this->tpl['template_directory'] . serialize(self::$config_name_sum));
+            $this->tpl['compiled_filename'] = $temp_compiled_filename . '.rtpl.php';    // cache filename
+            $this->tpl['cache_filename'] = $temp_compiled_filename . '.s_' . $this->cache_id . '.rtpl.php';    // static cache filename
             $this->tpl['checked'] = true;
 
             // if the template doesn't exist and is not an external source throw an error
@@ -272,12 +283,12 @@ class RainTPL extends Debug
 
             // We check if the template is not an external source
             if (preg_match('/http/', $tpl_name)) {
-                $this->compileFile('', '', $tpl_name, self::$cache_dir, $this->tpl['compiled_filename']);
+                $this->compileFile('', '', $tpl_name, self::$root_dir . self::$cache_dir, $this->tpl['compiled_filename']);
 
                 return true;
             } // file doesn't exist, or the template was updated, Rain will compile the template
             elseif (!file_exists($this->tpl['compiled_filename']) || (self::$check_template_update && filemtime($this->tpl['compiled_filename']) < filemtime($this->tpl['tpl_filename']))) {
-                $this->compileFile($tpl_basename, $tpl_basedir, $this->tpl['tpl_filename'], self::$cache_dir, $this->tpl['compiled_filename']);
+                $this->compileFile($tpl_basename, $tpl_basedir, $this->tpl['tpl_filename'], self::$root_dir . self::$cache_dir, $this->tpl['compiled_filename']);
 
                 return true;
             }
@@ -305,7 +316,9 @@ class RainTPL extends Debug
     {
 
         //read template file
-        $this->tpl['source'] = $template_code = file_get_contents($tpl_filename);
+        //$this->tpl['source'] = $template_code = file_get_contents($tpl_filename);
+        //将PHP代码去掉
+        $this->tpl['source'] = $template_code = str_replace("<?php if (!defined('FILE_PREFIX')) include '../../../error-forbidden.php'; ?>\n", '', file_get_contents($tpl_filename));
 
         //xml substitution
         $template_code = preg_replace("/<\?xml(.*?)\?>/s", "##XML\\1XML##", $template_code);
@@ -346,6 +359,7 @@ class RainTPL extends Debug
 
         //tag list
         $tag_regexp = ['loop'          => '(\{loop(?: name){0,1}="\${0,1}[^"]*"\})',
+                       'break'         => '(\{break\})',
                        'loop_close'    => '(\{\/loop\})',
                        'if'            => '(\{if(?: condition){0,1}="[^"]*"\})',
                        'elseif'        => '(\{elseif(?: condition){0,1}="[^"]*"\})',
@@ -363,11 +377,11 @@ class RainTPL extends Debug
 
         $tag_regexp = "/" . join("|", $tag_regexp) . "/";
 
-        //split the code with the tags regexp
-        $template_code = preg_split($tag_regexp, $template_code, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
         //path replace (src of img, background and href of link)
         $template_code = $this->path_replace($template_code, $tpl_basedir);
+
+        //split the code with the tags regexp
+        $template_code = preg_split($tag_regexp, $template_code, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 
         //compile the code
         $compiled_code = $this->compileCode($template_code);
@@ -407,13 +421,21 @@ class RainTPL extends Debug
                 //ignore the code
             } //close no parse tag
             elseif (strpos($html, '{/noparse}') !== false)
-                $comment_is_open = false; //code between tag noparse is not compiled
+                $comment_is_open = false;
+
+            //code between tag noparse is not compiled
             elseif ($comment_is_open)
-                $compiled_code .= $html; //ignore
+                $compiled_code .= $html;
+
+            //ignore
             elseif (strpos($html, '{ignore}') !== false || strpos($html, '{*') !== false)
-                $ignore_is_open = true; //noparse
+                $ignore_is_open = true;
+
+            //noparse
             elseif (strpos($html, '{noparse}') !== false)
-                $comment_is_open = true; //include tag
+                $comment_is_open = true;
+
+            //include tag
             elseif (preg_match('/\{include="([^"]*)"(?: cache="([^"]*)"){0,1}\}/', $html, $code)) {
                 if (preg_match("/http/", $code[1])) {
                     $content = file_get_contents($code[1]);
@@ -465,12 +487,18 @@ class RainTPL extends Debug
                 $var = $this->var_replace('$' . $code[1], $tag_left_delimiter = null, $tag_right_delimiter = null, $php_left_delimiter = null, $php_right_delimiter = null, $loop_level - 1);
 
                 //loop variables
-                $counter = "\$counter$loop_level"; // count iteration
-                $key = "\$key$loop_level"; // key
-                $value = "\$value$loop_level"; // value
+                $counter = "\$counter$loop_level";       // count iteration
+                $key = "\$key$loop_level";               // key
+                $value = "\$value$loop_level";           // value
 
                 //loop code
                 $compiled_code .= "<?php $counter=-1; if( isset($var) && is_array($var) && sizeof($var) ) foreach( $var as $key => $value ){ $counter++; ?>";
+
+            } // loop break
+            elseif (strpos($html, '{break}') !== false) {
+
+                //else code
+                $compiled_code .= '<?php break; ?>';
 
             } //close loop tag
             elseif (strpos($html, '{/loop}') !== false) {
@@ -606,10 +634,78 @@ class RainTPL extends Debug
 
 
     /**
-     * replace the path of image src, link href and a href.
-     * url => template_dir/url
-     * url# => url
+     * Replace URL according to the following rules:
      * http://url => http://url
+     * url# => url
+     * /url => base_dir/url
+     * url => path/url (where path generally is base_url/template_dir)
+     * (The last one is => base_dir/url for <a> href)
+     *
+     * @param string $url  Url to rewrite.
+     * @param string $tag  Tag in which the url has been found.
+     * @param string $path Path to prepend to relative URLs.
+     *
+     * @return string rewritten url
+     */
+    protected function rewrite_url($url, $tag, $path)
+    {
+        // If we don't have to rewrite for this tag, do nothing.
+        if (!in_array($tag, self::$path_replace_list)) {
+            return $url;
+        }
+
+        // Make protocol list. It is a little bit different for <a>.
+        $protocol = 'http|https|ftp|file|apt|magnet';
+        if ($tag == 'a') {
+            $protocol .= '|mailto|javascript';
+        }
+
+        // Regex for URLs that should not change (except the leading #)
+        $no_change = "/(^($protocol)\:)|(#$)/i";
+        if (preg_match($no_change, $url)) {
+            return rtrim($url, '#');
+        }
+
+        // Regex for URLs that need only base url (and not template dir)
+        $base_only = '/^\//';
+        if ($tag == 'a' or $tag == 'form') {
+            $base_only = '//';
+        }
+        if (preg_match($base_only, $url)) {
+            return rtrim(self::$base_url, '/') . '/' . ltrim($url, '/');
+        }
+
+        // Other URLs
+        return $path . $url;
+    }
+
+
+    /**
+     * replace one single path corresponding to a given match in the `path_replace` regex.
+     * This function has no reason to be used anywhere but in `path_replace`.
+     *
+     * @see path_replace
+     *
+     * @param array $matches
+     *
+     * @return replacement string
+     */
+    protected function single_path_replace($matches)
+    {
+        $tag = $matches[1];
+        $_ = $matches[2];
+        $attr = $matches[3];
+        $url = $matches[4];
+        $new_url = $this->rewrite_url($url, $tag, $this->path);
+
+        return "<$tag$_$attr=\"$new_url\"";
+    }
+
+
+    /**
+     * replace the path of image src, link href and a href.
+     *
+     * @see rewrite_url for more information about how paths are replaced.
      *
      * @param string $html
      *
@@ -622,37 +718,23 @@ class RainTPL extends Debug
 
             $tpl_dir = self::$base_url . self::$tpl_dir . $tpl_basedir;
 
-            // reduce the path
-            $path = $this->reduce_path($tpl_dir);
+            // Prepare reduced path not to compute it for each link
+            $this->path = $this->reduce_path($tpl_dir);
 
-            $exp = $sub = [];
+            $url = '(?:(?:\\{.*?\\})?[^{}]*?)*?'; // allow " inside {} for cases in which url contains {function="foo()"}
 
-            if (in_array("img", self::$path_replace_list)) {
-                $exp = ['/<img(.*?)src=(?:")(http|https)\:\/\/([^"]+?)(?:")/i', '/<img(.*?)src=(?:")([^"]+?)#(?:")/i', '/<img(.*?)src="(.*?)"/', '/<img(.*?)src=(?:\@)([^"]+?)(?:\@)/i'];
-                $sub = ['<img$1src=@$2://$3@', '<img$1src=@$2@', '<img$1src="' . $path . '$2"', '<img$1src="$2"'];
-            }
+            $exp = [];
 
-            if (in_array("script", self::$path_replace_list)) {
-                $exp = array_merge($exp, ['/<script(.*?)src=(?:")(http|https)\:\/\/([^"]+?)(?:")/i', '/<script(.*?)src=(?:")([^"]+?)#(?:")/i', '/<script(.*?)src="(.*?)"/', '/<script(.*?)src=(?:\@)([^"]+?)(?:\@)/i']);
-                $sub = array_merge($sub, ['<script$1src=@$2://$3@', '<script$1src=@$2@', '<script$1src="' . $path . '$2"', '<script$1src="$2"']);
-            }
+            $tags = array_intersect(["link", "a"], self::$path_replace_list);
+            $exp[] = '/<(' . join('|', $tags) . ')(.*?)(href)="(' . $url . ')"/i';
 
-            if (in_array("link", self::$path_replace_list)) {
-                $exp = array_merge($exp, ['/<link(.*?)href=(?:")(http|https)\:\/\/([^"]+?)(?:")/i', '/<link(.*?)href=(?:")([^"]+?)#(?:")/i', '/<link(.*?)href="(.*?)"/', '/<link(.*?)href=(?:\@)([^"]+?)(?:\@)/i']);
-                $sub = array_merge($sub, ['<link$1href=@$2://$3@', '<link$1href=@$2@', '<link$1href="' . $path . '$2"', '<link$1href="$2"']);
-            }
+            $tags = array_intersect(["img", "script", "input"], self::$path_replace_list);
+            $exp[] = '/<(' . join('|', $tags) . ')(.*?)(src)="(' . $url . ')"/i';
 
-            if (in_array("a", self::$path_replace_list)) {
-                $exp = array_merge($exp, ['/<a(.*?)href=(?:")(http\:\/\/|https\:\/\/|javascript:|mailto:)([^"]+?)(?:")/i', '/<a(.*?)href="(.*?)"/', '/<a(.*?)href=(?:\@)([^"]+?)(?:\@)/i']);
-                $sub = array_merge($sub, ['<a$1href=@$2$3@', '<a$1href="' . self::$base_url . '$2"', '<a$1href="$2"']);
-            }
+            $tags = array_intersect(["form"], self::$path_replace_list);
+            $exp[] = '/<(' . join('|', $tags) . ')(.*?)(action)="(' . $url . ')"/i';
 
-            if (in_array("input", self::$path_replace_list)) {
-                $exp = array_merge($exp, ['/<input(.*?)src=(?:")(http|https)\:\/\/([^"]+?)(?:")/i', '/<input(.*?)src=(?:")([^"]+?)#(?:")/i', '/<input(.*?)src="(.*?)"/', '/<input(.*?)src=(?:\@)([^"]+?)(?:\@)/i']);
-                $sub = array_merge($sub, ['<input$1src=@$2://$3@', '<input$1src=@$2@', '<input$1src="' . $path . '$2"', '<input$1src="$2"']);
-            }
-
-            return preg_replace($exp, $sub, $html);
+            return preg_replace_callback($exp, 'self::single_path_replace', $html);
 
         } else
             return $html;

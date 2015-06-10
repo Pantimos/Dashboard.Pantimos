@@ -1,4 +1,4 @@
-
+<?php if (!defined('FILE_PREFIX')) include '../../../error-forbidden.php'; ?>
 <div class="js-page-view js-page-home">
     <div class="jumbotron">
         <div class="container">

@@ -25,7 +25,12 @@
  */
 
 
-if (!defined('FILE_PREFIX')) die('Silence is golden.');
+if (!defined('FILE_PREFIX')) include "../error-forbidden.php";
+
+/**
+ * 用于保存程序启动参数
+ */
+global $arguments;
 
 class Core
 {
@@ -72,7 +77,16 @@ class Core
             $result = self::associative_push($args[ $i ], $result);
         }
 
-        return $result;
+        $arguments = $result;
+
+        return $arguments;
+    }
+
+    public function get_args()
+    {
+        global $arguments;
+
+        return $arguments;
     }
 
     /**

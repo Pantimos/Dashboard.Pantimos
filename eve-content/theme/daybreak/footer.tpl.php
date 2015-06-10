@@ -1,3 +1,4 @@
+<?php if (!defined('FILE_PREFIX')) include '../../../error-forbidden.php'; ?>
 <div class="container">
     <hr>
 

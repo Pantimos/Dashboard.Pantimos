@@ -16,7 +16,7 @@
  * @website http://soulteary.com
  */
 
-if (!defined('FILE_PREFIX')) die('Silence is golden.');
+if (!defined('FILE_PREFIX')) include "../error-forbidden.php";
 
 class Debug extends Safe
 {

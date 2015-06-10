@@ -12,87 +12,90 @@
  * @website http://soulteary.com
  */
 
-if (!defined('FILE_PREFIX')) die('Silence is golden.');
+if (!defined('FILE_PREFIX')) include "../error-forbidden.php";
+
+global $RouteSimpleRules;
+global $RouteRegexpRules;
 
 class Route extends Safe
 {
 
-    private $args = [];
-    public $action = "";
-    public $module = "";
-
     function __construct()
     {
-        $this->args = core::init_args(func_get_args());
-        $this->module = self::getQueryKey('pantimos_mod');
-        $this->action = self::getQueryKey('pantimos_action');
+        $current_uri = strtolower($_SERVER['REQUEST_URI']);
+        $len = strlen($current_uri);
+        // 当请求路径非根目录时，去掉URI请求后的`/`
+        if ($len > 1 && substr($current_uri, $len - 1, 1) === '/') {
+            $current_uri = substr($current_uri, 0, $len - 1);
+        }
+        $this->matchRule($current_uri);
+    }
 
-        switch ($this->module) {
-            case 'nginx':
-                if (empty($this->action)) {
-                    $this->action = "test";
-                }
-                new Nginx(['action' => $this->action]);
+    /**
+     * 匹配网站路由
+     *
+     * @since 0.0.1
+     *
+     * @param $uri
+     *
+     * @return bool
+     */
+    private function matchRule($uri)
+    {
+        global $RouteSimpleRules;
+        global $RouteRegexpRules;
+
+        // 第一次匹配完全相等的
+        foreach ($RouteSimpleRules as $rule => $execute) {
+            if ($rule === $uri) {
+                app::$execute();
+
+                return true;
+            }
+        }
+        // 第二次进行正则匹配
+        foreach ($RouteRegexpRules as $rule => $execute) {
+            $regexp = '/^' . str_replace('/', '\/', $rule) . '$/';
+            if (preg_match($regexp, $uri)) {
+                app::$execute();
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 注册路由
+     *
+     * @since       0.0.1
+     *
+     * @param      $routeName
+     * @param      $func
+     * @param bool $isRegexp
+     */
+    static function register($routeName, $func, $isRegexp = false)
+    {
+        global $RouteSimpleRules;
+        global $RouteRegexpRules;
+
+        $rule = func_get_args();
+
+        switch (count($rule)) {
+            case 2:
+                $RouteSimpleRules[ $rule[0] ] = $rule[1];
                 break;
-            case 'hosts':
-                if (empty($this->action)) {
-                    $this->action = "view";
-                }
-                new Hosts(['action' => $this->action]);
-                break;
-            case 'redis':
-                if (empty($this->action)) {
-                    $this->action = "info";
-                }
-                new Redis2(['action' => $this->action]);
-                break;
-            case 'project':
-                if (empty($this->action)) {
-                    $this->action = "help";
-                }
-                new Project(['action' => $this->action]);
-                break;
-            case 'mock':
-                $mockHost = self::getQueryKey('pantimos_hostname');
-                if (empty($this->action) && !empty($mockHost)) {
-                    $this->action = "mock";
-                } elseif (empty($this->action)) {
-                    $this->action = "view";
-                }
-                new Mock(['action' => $this->action, 'host' => $mockHost, 'query' => self::getQueryKey('pantimos_query')]);
-                break;
-            case 'doc':
-                if (empty($this->action)) {
-                    $this->action = "home";
-                }
-                break;
-            case 'build':
-                if (empty($this->action)) {
-                    $this->action = "view-project";
+            case 3:
+                if ($isRegexp) {
+                    $RouteRegexpRules[ $rule[0] ] = $rule[1];
+                } else {
+                    $RouteSimpleRules[ $rule[0] ] = $rule[1];
                 }
                 break;
             default:
-                break;
-        }
-    }
-
-
-    /**
-     * 将URI中的参数转换为小写字母
-     *
-     * @param $key
-     *
-     * @return string
-     */
-    private function getQueryKey($key)
-    {
-        if (!empty($_GET[ $key ])) {
-            $action = strtolower(trim($_GET[ $key ]));
-        } else {
-            $action = "";
+                die('注册路由参数错误。');
         }
 
-        return $action;
     }
-
 }

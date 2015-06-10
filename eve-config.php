@@ -11,7 +11,9 @@
  * @website http://soulteary.com
  */
 
-if(!defined('FILE_PREFIX'))die('Silence is golden.');
+if (!defined('FILE_PREFIX')) include "error-forbidden.php";
+
+date_default_timezone_set('PRC');
 
 /** 程序版本 */
 define("VERSION", "1.0.0");
@@ -25,6 +27,9 @@ define('GZIP', true);
 define('E_LANG', 'zh-CN');
 /** 字符集设置 */
 define('E_CHARSET', 'utf-8');
+/** 静态资源地址 */
+define('E_ASSETS_PREFIX', '//dashboard.pantimos.io/assets/');
+
 
 /** 映射到虚拟机中的根目录 **/
 define('vmRootDir', '/media/psf/PantimosDir/');
@@ -49,5 +54,5 @@ function __autoload($classname)
 }
 
 /** 输出网站内容 */
-$EVE = new Template(array('THEME' => THEME, 'GZIP' => GZIP, 'DEBUG' => DEBUG));
+$EVE = new App(array('THEME' => THEME, 'GZIP' => GZIP, 'DEBUG' => DEBUG));
 

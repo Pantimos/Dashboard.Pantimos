@@ -13,7 +13,7 @@
  * @website http://soulteary.com
  */
 
-if (!defined('FILE_PREFIX')) die('Silence is golden.');
+if (!defined('FILE_PREFIX')) include "error-forbidden.php";
 
 define('ABSPATH', dirname(__FILE__) . '/');
 
@@ -25,6 +25,5 @@ if (file_exists(ABSPATH . FILE_PREFIX . 'config.php')) {
     require_once(ABSPATH . FILE_PREFIX . 'config.php');
 
 } else {
-    //todo: replace html
-    die('Can\'t find config file.');
+    die('找不到网站配置。');
 }
