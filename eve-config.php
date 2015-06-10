@@ -18,7 +18,7 @@ define("VERSION", "1.0.0");
 /** 调试模式开关 */
 define('DEBUG', false);
 /** 主题选择 */
-define('THEME', 'default');
+define('THEME', 'daybreak');
 /** 开启GZIP压缩(如果调试模式被激活，那么忽略此设置。) */
 define('GZIP', true);
 /** 语言设置 */
