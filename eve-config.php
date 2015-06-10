@@ -29,6 +29,8 @@ define('E_LANG', 'zh-CN');
 define('E_CHARSET', 'utf-8');
 /** 静态资源地址 */
 define('E_ASSETS_PREFIX', '//dashboard.pantimos.io/assets/');
+/** 站点名称 */
+define('E_PAGE_TITLE', 'Pantimos Dashboard');
 
 
 /** 映射到虚拟机中的根目录 **/

@@ -4,7 +4,7 @@
 <head>
     <meta charset="{$PAGE_CHARSET}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{$PAGE_TITLE}</title>
+    <title>{$TITLE}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="assets/css/todc-bootstrap.min.css"/>
@@ -22,8 +22,8 @@
                 'moe': './assets/js/moe.min'
             }
         });
-        require(['moe'], function (theme) {
-            console.log(theme)
+        require(['moe'], function (app) {
+            app.init();
         });
     </script>
 </head>

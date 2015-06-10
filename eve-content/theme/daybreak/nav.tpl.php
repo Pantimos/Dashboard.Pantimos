@@ -8,7 +8,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">首页</a>
+            <a class="navbar-brand" href="/">首页</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse" aria-expanded="false">
             <ul class="nav navbar-nav">
@@ -17,7 +17,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-list"></i>功能列表 <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href="#"><i class="fa fa-connectdevelop"></i>创建环境</a></li>
+                        <li><a href="/project"><i class="fa fa-connectdevelop"></i>创建环境</a></li>
                         <li class="divider"></li>
                         <li class="dropdown-header">模拟数据</li>
                         <li><a href="#"><i class="fa fa-medium"></i>接口模拟</a></li>

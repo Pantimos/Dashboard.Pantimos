@@ -15,7 +15,7 @@
                 <h2>创建环境</h2>
                 <p><i class="fa fa-connectdevelop"></i></p>
                 <p>一键创建WEB系统环境</p>
-                <p><a class="btn btn-default" href="create-host.html" role="button">我要创建 &raquo;</a></p>
+                <p><a class="btn btn-default" href="/project" role="button">我要创建 &raquo;</a></p>
             </div>
             <div class="col-md-4">
                 <h2>模拟数据</h2>

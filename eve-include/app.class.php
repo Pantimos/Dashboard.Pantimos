@@ -32,12 +32,19 @@ class App extends Safe
      */
     private function init_route()
     {
+        //  首页
         route::register('/', 'index');
         route::register('/index.php', 'index');
         route::register('/\?.*', 'index', true);
         route::register('/index.php\?.*', 'index', true);
-
-
+        // 项目环境
+        route::register('/create-project', 'project_create');
+        route::register('/create-project\?.*', 'project_create', true);
+        route::register('/delete-project', 'project_delete');
+        route::register('/delete-project\?.*', 'project_delete', true);
+        route::register('/project', 'project_index');
+        route::register('/project\?.*', 'project_index', true);
+        route::register('/project/\?.*', 'project_index', true);
 
 
         route::register('/hi-cat', 'hi_cat');
@@ -56,7 +63,36 @@ class App extends Safe
      */
     public function index()
     {
-        return new Index(['header' => self::get_page_data('index')]);
+        return new Index(['page' => 'index']);
+    }
+
+    /**
+     * 管理项目
+     *
+     * @since 1.0.0
+     *
+     * @param string $action
+     *
+     * @return Index
+     */
+    public function project($action = 'index')
+    {
+        return new Project(['page' => 'project', 'action' => $action]);
+    }
+
+    public function project_index()
+    {
+        return self::project();
+    }
+
+    public function project_create()
+    {
+        return self::project('create');
+    }
+
+    public function project_delete()
+    {
+        return self::project('delete');
     }
 
     public function hi_cat()
@@ -74,24 +110,6 @@ class App extends Safe
     public function page404()
     {
         include ABSPATH . FILE_PREFIX . "404.php";
-    }
-
-    /**
-     * 根据路由名称获得页面基础数据
-     *
-     * @since 1.0.1
-     *
-     * @param $route
-     *
-     * @return mixed
-     */
-    private function get_page_data($route)
-    {
-        $data['MODULE'] = $route;
-        $data['PAGE_CHARSET'] = E_CHARSET;
-        $data['PAGE_LANG'] = E_LANG;
-
-        return $data;
     }
 
 }
