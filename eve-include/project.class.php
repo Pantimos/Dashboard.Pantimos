@@ -4,6 +4,8 @@
  *
  * 项目管理。
  *
+ * @todo 获取项目列表后，检查项目状态，是否至少有nginx.conf
+ *
  * @version 1.0.0
  *
  * @email   soulteary@qq.com
@@ -110,6 +112,7 @@ server {
                 $data['footer'] = [
                     'currentYear' => date('Y')
                 ];
+
                 return new Template($data);
         }
     }
@@ -117,8 +120,6 @@ server {
 
     /**
      * 获取项目列表
-     *
-     * @return JSON
      */
     private function getList()
     {
@@ -129,19 +130,15 @@ server {
         $ret = str_replace(vmRootDir, "", $ret);
 
         $arr = explode("\n", $ret);
-        $data = [
-            'code' => 200,
-            'data' => []
-        ];
+        $data = [];
         foreach ($arr as $key => $val) {
             $val = trim($val);
             if ($val && !strstr($val, 'directories')) {
-                array_push($data['data'], $val);
+                array_push($data, $val);
             }
         }
-        return API::json($data);
+        API::success($data, true, 200, '获取项目列表成功。');
     }
-
 
     /**
      * 操作黑名单

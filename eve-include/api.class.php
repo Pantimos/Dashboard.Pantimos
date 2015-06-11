@@ -67,7 +67,7 @@ class API extends Safe
 
         header('X-Content-Type-Options: nosniff');
         header('Content-Type:application/x-javascript;charset=utf-8;');
-        if($encode){
+        if ($encode) {
             $data = json_encode($data);
         }
         $data = str_replace('/\u2028/g', '\\u2028', $data);
@@ -83,17 +83,21 @@ class API extends Safe
     }
 
     /**
-     * 输出成功的信息
+     * 输出成功信息的数据
      *
-     * @param      $data
-     * @param bool $isJSON
+     * @param        $data
+     * @param bool   $isJSON
+     * @param int    $code
+     * @param string $desc
      */
-    static function success($data, $isJSON = false)
+    static function success($data, $isJSON = false, $code = 200, $desc = '')
     {
         if ($isJSON) {
             self::json([
-                'code' => 200,
-                'desc' => $data
+                'code'   => $code,
+                'data'   => $data,
+                'desc'   => $desc,
+                'status' => 'success'
             ]);
         } else {
             die("ok");
@@ -103,18 +107,22 @@ class API extends Safe
     /**
      * 输出失败信息
      *
-     * @param      $data
-     * @param bool $isJSON
+     * @param        $data
+     * @param bool   $isJSON
+     * @param int    $code
+     * @param string $desc
      */
-    static function fail($data, $isJSON = false)
+    static function fail($data, $isJSON = false, $code = 400, $desc = '')
     {
         if ($isJSON) {
             self::json([
-                'code' => 400,
-                'desc' => $data
+                'code'   => $code,
+                'data'   => $data,
+                'desc'   => $desc,
+                'status' => 'fail'
             ]);
         } else {
-            die($data);
+            die("fail");
         }
     }
 

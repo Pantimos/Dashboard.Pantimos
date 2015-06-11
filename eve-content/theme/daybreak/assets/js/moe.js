@@ -1,3 +1,7 @@
+define('model/core', [], function () {
+    'use strict';
+    return window.$;
+});
 define('model/debug', [
     'require',
     'exports',
@@ -87,9 +91,11 @@ define('model/debug', [
 define('model/bg-star', [
     'require',
     'exports',
-    'module'
+    'module',
+    'model/core'
 ], function (require) {
-    var $ = window.$;
+    'use strict';
+    var $ = require('./core');
     var win = $(window);
     function start(target) {
         function lineToAngle(x1, y1, length, radians) {
@@ -290,97 +296,233 @@ define('page/home', [
     'require',
     'exports',
     'module',
+    'model/core',
     'model/bg-star'
-], function (require, module, exports) {
+], function (require) {
     'use strict';
-    var $ = window.$;
-    var bgStar = require('../model/bg-star');
-    var homePage = $('.js-page-home');
-    function init() {
-        if (homePage.length) {
+    return {
+        init: function (container) {
+            var $ = require('../model/core');
+            var page = $(container);
+            if (!page.length) {
+                return false;
+            }
+            var bgStar = require('../model/bg-star');
             bgStar('.js-page-home .bg-star');
             $('.application-intro').on('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                var scrollTop = homePage.find('.bg-star').height() + homePage.find('.bg-star').offset().top - $('body > navbar').height();
-                $('html,body').animate({ scrollTop: scrollTop }, 800);
+                var scrollTop = page.find('.bg-star').height() + page.find('.bg-star').offset().top - $('body > navbar').height();
+                if (scrollTop > $('body').scrollTop()) {
+                    $('html,body').stop().animate({ scrollTop: scrollTop }, 800);
+                }
             });
         }
-    }
-    return { init: init };
+    };
 });
 define('tpl/project-list', [], function () {
     'use strict';
     function render(it) {
-        var out = '<a href="2">3</a>';
+        var out = '<table class="table table table-bordered js-table-project-list"> <thead> <tr> <th class="col-md-11">\u9879\u76EE\u540D\u79F0</th> <th class="col-md-1">\u5220\u9664\u9879\u76EE</th> </tr> </thead> <tbody> ';
+        var arr1 = it;
+        if (arr1) {
+            var item, index = -1, l1 = arr1.length - 1;
+            while (index < l1) {
+                item = arr1[index += 1];
+                out += ' <tr> <td>' + item + '</td> <td> <a class="button button-pill button-tiny button-circle button-caution" href="#"><i class="fa fa-minus"></i></a> </td> </tr> ';
+            }
+        }
+        out += ' </tbody></table>';
         return out;
     }
     return render;
+});
+define('model/template', [
+    'require',
+    'exports',
+    'module',
+    'tpl/project-list'
+], function (require) {
+    'use strict';
+    var tplPackage = { 'project-list': require('../tpl/project-list') };
+    var container = { 'project-list': '.js-table-project-list' };
+    function Template(page) {
+        this.page = page;
+    }
+    Template.prototype = {
+        render: function (name, data) {
+            this.page.find(container[name]).replaceWith(tplPackage[name](data));
+        }
+    };
+    return function (page) {
+        if (page) {
+            return new Template(page);
+        } else {
+            return this;
+        }
+    };
+});
+define('model/config', [
+    'require',
+    'exports',
+    'module',
+    'model/core'
+], function (require) {
+    'use strict';
+    var $ = require('./core');
+    var host = '//' + location.host;
+    var protocol = location.protocol;
+    function makeUp(name, params) {
+        var base = API[name], param = '';
+        if (!base) {
+            return '';
+        }
+        if (params) {
+            param = '?' + $.param(params);
+        }
+        return {
+            uri: base.uri + param,
+            type: base.type
+        };
+    }
+    var API = {
+        'getProjectList': {
+            uri: protocol + host + '/project-list',
+            type: 'POST'
+        }
+    };
+    return makeUp;
+});
+define('model/network', [
+    'require',
+    'exports',
+    'module',
+    'model/debug',
+    'model/config'
+], function (require) {
+    var $ = window.$;
+    var debug = require('./debug');
+    var config = require('./config');
+    var dataStatus = 'data-network-status';
+    debug('log');
+    var failCode = {
+        'NETWORK_ERROR': 500,
+        'REQUEST_ERROR': 400
+    };
+    var body = $('body');
+    function requestApi(type, uriParams, data, success, fail) {
+        function innerSuccess(response) {
+            body.attr(dataStatus, '');
+            debug.debug('[\u8BF7\u6C42\u6210\u529F]\u5F53\u524D\u63A5\u53E3:', type, ' \u8FD4\u56DE\u5185\u5BB9:', response);
+            if (response && response.status && response.status === 'success') {
+                if (success) {
+                    if (response.data) {
+                        return success(response.data);
+                    } else {
+                        return success(response);
+                    }
+                }
+                return true;
+            } else {
+                return innerFail(response);
+            }
+        }
+        function innerFail(response) {
+            body.attr(dataStatus, '');
+            debug.debug('[\u8BF7\u6C42\u5931\u8D25]\u5F53\u524D\u63A5\u53E3:', type, ' \u8FD4\u56DE\u5185\u5BB9:', response);
+            if (response && response.status && response.status === 'fail') {
+                if (fail) {
+                    if (response.data) {
+                        return fail(response.data, failCode.REQUEST_ERROR);
+                    } else {
+                        return fail(response, failCode.REQUEST_ERROR);
+                    }
+                }
+            } else {
+                return fail(response, failCode.NETWORK_ERROR);
+            }
+        }
+        var api = config(type, uriParams);
+        var status = body.attr(dataStatus);
+        if (status && status === 'locked') {
+            debug.warn('\u6B63\u5728\u8BF7\u6C42\u63A5\u53E3\u4E2D\uFF0C\u8BF7\u52FF\u91CD\u590D\u63D0\u4EA4\u3002');
+            return false;
+        } else {
+            body.attr(dataStatus, 'locked');
+            $.ajax({
+                type: api.type,
+                url: api.uri,
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: innerSuccess,
+                error: innerFail
+            });
+        }
+    }
+    return { request: requestApi };
 });
 define('page/project', [
     'require',
     'exports',
     'module',
-    'tpl/project-list'
-], function (require, module, exports) {
+    'model/core',
+    'model/debug',
+    'model/template',
+    'model/network'
+], function (require) {
     'use strict';
-    var $ = window.$;
-    var projectPage = $('.js-page-project');
-    var template = require('../tpl/project-list');
-    function getList() {
-        if (projectPage.length) {
-            $.post('/project-list', null, function (response) {
-                if (response) {
-                    switch (response.code) {
-                    case 200:
-                        console.log(template(projectPage).render('projectList', response.data));
-                        console.log(response.data);
-                        break;
-                    case 400:
-                        console.log(response.data);
-                        break;
-                    }
-                }
-            });
-        }
-    }
-    function pageLoaded() {
-        getList();
-    }
-    function init() {
-        if (projectPage.length) {
-            projectPage.find('.js-create-project-button').on('click', function (e) {
+    return {
+        init: function (container) {
+            var $ = require('../model/core');
+            var page = $(container);
+            if (!page.length) {
+                return false;
+            }
+            var debug = require('../model/debug');
+            debug('info');
+            var Template = require('../model/template')(page);
+            var Network = require('../model/network');
+            function getList() {
+                Network.request('getProjectList', '', '', function (response) {
+                    Template.render('project-list', response);
+                }, function (response) {
+                    debug.error(response, '\u5931\u8D25');
+                });
+            }
+            function pageLoaded() {
+                getList();
+            }
+            page.find('.js-create-project-button').on('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                $.post('/create-project', { 'domain': projectPage.find('.input-domain').val() }, function (resp) {
-                    console.log(resp);
+                $.post('/create-project', { 'domain': page.find('.input-domain').val() }, function (resp) {
+                    debug.error(resp);
                 });
             });
+            pageLoaded();
         }
-        pageLoaded();
-    }
-    return { init: init };
+    };
 });
 define('moe', [
     'require',
     'exports',
     'module',
+    'model/core',
     'model/debug',
     'page/home',
     'page/project'
-], function (require, module, exports) {
+], function (require) {
     'use strict';
-    var $ = window.$;
+    var $ = require('./model/core');
     var debug = require('./model/debug');
-    debug(5);
-    var home = require('./page/home');
-    var project = require('./page/project');
-    function initTheme() {
+    debug('info');
+    var page = {};
+    function init() {
         $(function () {
-            debug.log('this is demo.');
-            home.init();
-            project.init();
+            debug.log('Pantimos Start!');
+            page.home = require('./page/home').init('.js-page-home');
+            page.project = require('./page/project').init('.js-page-project');
         });
     }
-    return { init: initTheme };
+    return { init: init };
 });

@@ -24,18 +24,6 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>dev.dev.dev</td>
-                        <td>
-                            <a class="button button-pill button-tiny button-circle button-caution" href="#"><i class="fa fa-minus"></i></a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>hello.world</td>
-                        <td>
-                            <a class="button button-pill button-tiny button-circle button-caution" href="#"><i class="fa fa-minus"></i></a>
-                        </td>
-                    </tr>
                     </tbody>
                 </table>
             </div>
