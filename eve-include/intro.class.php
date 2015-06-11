@@ -2,7 +2,7 @@
 /**
  * Eve
  *
- * 网站首页。
+ * 了解详情。
  *
  * @version 1.0.0
  *
@@ -12,7 +12,7 @@
 
 if (!defined('FILE_PREFIX')) include "../error-forbidden.php";
 
-class Index extends Safe
+class Intro extends Safe
 {
     function __construct()
     {
@@ -30,10 +30,11 @@ class Index extends Safe
         ];
 
         $data['nav'] = [
-            'showEssentials' => true
+            'showHomeMenu' => false
         ];
 
         $data['body'] = [];
+        $data['body_file'] = 'intro-index';
 
         $data['footer'] = [
             'currentYear' => date('Y')

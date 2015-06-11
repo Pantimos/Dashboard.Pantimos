@@ -4,7 +4,7 @@
         <div class="container">
             <h1>Pantimos</h1>
             <p>花一分钟了解一个功能，或许会带来开发过程中质的提升。</p>
-            <p><a class="button button-3d button-box button-jumbo" href="#" role="button">点我了解 &raquo;</a></p>
+            <p><a class="button button-3d button-box button-jumbo" href="/about-project" role="button">点我了解 &raquo;</a></p>
         </div>
         <canvas class="bg-star" width="100%" height="100%"></canvas>
     </div>

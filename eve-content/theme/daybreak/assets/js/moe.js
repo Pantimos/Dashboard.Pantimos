@@ -309,20 +309,31 @@ define('page/home', [
     }
     return { init: init };
 });
+define('tpl/project-list', [], function () {
+    'use strict';
+    function render(it) {
+        var out = '<a href="2">3</a>';
+        return out;
+    }
+    return render;
+});
 define('page/project', [
     'require',
     'exports',
-    'module'
+    'module',
+    'tpl/project-list'
 ], function (require, module, exports) {
     'use strict';
     var $ = window.$;
     var projectPage = $('.js-page-project');
+    var template = require('../tpl/project-list');
     function getList() {
         if (projectPage.length) {
             $.post('/project-list', null, function (response) {
                 if (response) {
                     switch (response.code) {
                     case 200:
+                        console.log(template(projectPage).render('projectList', response.data));
                         console.log(response.data);
                         break;
                     case 400:

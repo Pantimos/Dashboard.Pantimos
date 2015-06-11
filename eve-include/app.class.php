@@ -48,6 +48,9 @@ class App extends Safe
         route::register('/project\?.*', 'project_index', true);
         route::register('/project/\?.*', 'project_index', true);
 
+        // 项目环境
+        route::register('/about-project', 'intro');
+        route::register('/about-project\?.*', 'intro', true);
 
         route::register('/hi-cat', 'hi_cat');
         route::register('/hi-cat\?.*', 'hi_cat', true);
@@ -101,6 +104,21 @@ class App extends Safe
     {
         return self::project('list');
     }
+
+    /**
+     * 项目介绍
+     *
+     * @since 1.0.0
+     *
+     * @param string $action
+     *
+     * @return Index
+     */
+    public function intro($action = 'index')
+    {
+        return new Intro(['page' => 'intro', 'action' => $action]);
+    }
+
 
     public function hi_cat()
     {

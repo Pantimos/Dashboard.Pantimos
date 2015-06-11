@@ -12,7 +12,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse" aria-expanded="false">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="#intro" class="application-intro"><i class="fa fa-lightbulb-o"></i>功能概览</a></li>
+                <li{if="$showEssentials===true"} class="active"{/if}><a href="{if="$showEssentials===true"}#intro{else}/{/if}" class="application-intro"><i class="fa fa-lightbulb-o"></i>功能概览</a></li>
                 <li><a href="#"><i class="fa fa-book"></i>使用方法</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-list"></i>功能列表 <span class="caret"></span></a>
