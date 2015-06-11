@@ -317,6 +317,25 @@ define('page/project', [
     'use strict';
     var $ = window.$;
     var projectPage = $('.js-page-project');
+    function getList() {
+        if (projectPage.length) {
+            $.post('/project-list', null, function (response) {
+                if (response) {
+                    switch (response.code) {
+                    case 200:
+                        console.log(response.data);
+                        break;
+                    case 400:
+                        console.log(response.data);
+                        break;
+                    }
+                }
+            });
+        }
+    }
+    function pageLoaded() {
+        getList();
+    }
     function init() {
         if (projectPage.length) {
             projectPage.find('.js-create-project-button').on('click', function (e) {
@@ -327,6 +346,7 @@ define('page/project', [
                 });
             });
         }
+        pageLoaded();
     }
     return { init: init };
 });

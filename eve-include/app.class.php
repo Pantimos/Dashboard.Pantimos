@@ -42,6 +42,8 @@ class App extends Safe
         route::register('/create-project\?.*', 'project_create', true);
         route::register('/delete-project', 'project_delete');
         route::register('/delete-project\?.*', 'project_delete', true);
+        route::register('/project-list', 'project_list');
+        route::register('/project-list\?.*', 'project_list', true);
         route::register('/project', 'project_index');
         route::register('/project\?.*', 'project_index', true);
         route::register('/project/\?.*', 'project_index', true);
@@ -93,6 +95,11 @@ class App extends Safe
     public function project_delete()
     {
         return self::project('delete');
+    }
+
+    public function project_list()
+    {
+        return self::project('list');
     }
 
     public function hi_cat()
