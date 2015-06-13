@@ -16,7 +16,7 @@
 
             <h2 class="sub-header">当前程序中的环境</h2>
             <div class="table-responsive">
-                <table class="table table table-bordered js-table-project-list">
+                <table class="table table table-bordered table-hover js-table-project-list">
                     <thead>
                     <tr>
                         <th class="col-md-11">项目名称</th>

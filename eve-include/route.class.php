@@ -22,7 +22,12 @@ class Route extends Safe
 
     function __construct()
     {
-        $current_uri = strtolower($_SERVER['REQUEST_URI']);
+        $req = $_SERVER['REQUEST_URI'];
+        if (strpos($req, '/index.php?/api/') !== false) {
+            $req = str_replace('/index.php?', '', $req);
+            $req = substr_replace($req, '?', strpos($req, '&'), 1);
+        }
+        $current_uri = strtolower($req);
         $len = strlen($current_uri);
         // 当请求路径非根目录时，去掉URI请求后的`/`
         if ($len > 1 && substr($current_uri, $len - 1, 1) === '/') {

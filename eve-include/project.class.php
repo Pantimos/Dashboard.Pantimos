@@ -4,7 +4,7 @@
  *
  * 项目管理。
  *
- * @todo 获取项目列表后，检查项目状态，是否至少有nginx.conf
+ * @todo    获取项目列表后，检查项目状态，是否至少有nginx.conf
  *
  * @version 1.0.0
  *
@@ -87,16 +87,59 @@ server {
         switch ($action) {
             case 'create':
                 if (isset($_POST['domain']) && !empty($_POST['domain'])) {
-                    var_dump($_POST);
 
+                    $domainName = self::checkDomain($_POST['domain']);
+
+                    self::blackListChecker($this->config['blackList'], $domainName);
+
+                    $domainPath = vmRootDir . $domainName;
+
+                    if (file_exists($domainPath)) {
+                        API::fail("项目已经存在，如果想重新初始化，请先删除项目。", true);
+                    }
+
+                    system('mkdir -p ' . $domainPath . '/public');
+                    system('mkdir -p ' . $domainPath . '/conf');
+                    system('mkdir -p ' . $domainPath . '/logs');
+                    $tpl = str_replace('{$DOMAIN_NAME}', $domainName, $this->config['base']);
+                    $tpl = str_replace('{$DOMAIN_PATH}', $domainPath, $tpl);
+                    system('echo "' . $tpl . '" >' . $domainPath . '/conf/nginx.conf');
+                    $hosts = new Hosts(func_get_args());
+                    $hosts->add(false, $domainName);
+                    $nginx = new Nginx(func_get_args());
+                    $nginx->reload(true);
+                    API::success("创建项目并绑定域名成功。", true);
                 } else {
                     API::fail('请输入正确的域名。', true);
                 }
                 break;
-            case 'delete':
+            case 'remove':
+                if (isset($_POST['domain']) && !empty($_POST['domain'])) {
+
+                    $domainName = self::checkDomain($_POST['domain']);
+
+                    self::blackListChecker($this->config['blackList'], $domainName);
+
+                    $domainPath = vmRootDir . $domainName;
+
+                    if (!file_exists($domainPath)) {
+                        API::fail("目标不存在或已被删除。", true);
+                    }
+
+                    system('rm -rf ' . $domainPath);
+
+                    $hosts = new Hosts(func_get_args());
+                    $hosts->remove(false, $domainName);
+                    $nginx = new Nginx(func_get_args());
+                    $nginx->reload(true);
+                    API::success("目标成功删除。", true);
+                } else {
+                    API::fail('请输入正确的域名。', true);
+                }
                 break;
             case 'list':
-                return self::getList();
+                self::getList();
+                break;
             default:
                 $data['header'] = [
                     'TITLE'        => '项目管理 - ' . E_PAGE_TITLE,
@@ -119,7 +162,36 @@ server {
 
 
     /**
-     * 获取项目列表
+     * 检查Domain
+     *
+     * @param $name
+     *
+     * @return string
+     */
+    public function checkDomain($name)
+    {
+        if (!isset($name)) {
+            API::fail("请检查输入内容。", true);
+        }
+
+        $domainName = strtolower(trim($name));
+        if (empty($domainName)) {
+            API::fail("请检查输入内容。", true);
+        }
+
+        $domainName = str_replace('http://', '', $domainName);
+
+        $errorCheck = preg_match('/[^0-9a-zA-Z一-龥\-_\.]/u', $domainName);
+        if ($errorCheck) {
+            API::fail("请检查输入内容。", true);
+        }
+
+        return $domainName;
+    }
+
+
+    /**
+     * 获取当前目录下的项目列表
      */
     private function getList()
     {
@@ -180,35 +252,10 @@ server {
         $domainPath = vmRootDir . $domainName;
         switch ($this->do) {
             case 'create':
-                self::blackListChecker($this->config['blackList'], $domainPath);
-                if (file_exists($domainPath)) {
-                    API::fail("项目已经存在，如果想重新初始化，请先删除项目。", true);
-                }
 
-                system('mkdir -p ' . $domainPath . '/public');
-                system('mkdir -p ' . $domainPath . '/conf');
-                system('mkdir -p ' . $domainPath . '/logs');
-                $tpl = str_replace('{$DOMAIN_NAME}', $this->data, $this->config['base']);
-                $tpl = str_replace('{$DOMAIN_PATH}', $domainPath, $tpl);
-                system('echo "' . $tpl . '" >' . $domainPath . '/conf/nginx.conf');
-                $hosts = new Hosts(func_get_args());
-                $hosts->add(false, $domainName);
-                $nginx = new Nginx(func_get_args());
-                $nginx->reload(true);
-                API::success("创建项目并绑定域名成功。", true);
                 break;
             case 'destroy':
-                self::blackListChecker($this->config['blackList'], $domainPath);
-                if (!file_exists($domainPath)) {
-                    API::fail("目标不存在或已被删除。", true);
-                }
 
-                system('rm -rf ' . $domainPath);
-                $hosts = new Hosts(func_get_args());
-                $hosts->remove(false, $domainName);
-                $nginx = new Nginx(func_get_args());
-                $nginx->reload(true);
-                API::success("目标成功删除。", true);
                 break;
         }
 

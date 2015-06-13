@@ -38,12 +38,12 @@ class App extends Safe
         route::register('/\?.*', 'index', true);
         route::register('/index.php\?.*', 'index', true);
         // 项目环境
-        route::register('/create-project', 'project_create');
-        route::register('/create-project\?.*', 'project_create', true);
-        route::register('/delete-project', 'project_delete');
-        route::register('/delete-project\?.*', 'project_delete', true);
-        route::register('/project-list', 'project_list');
-        route::register('/project-list\?.*', 'project_list', true);
+        route::register('/api/create-project', 'project_create');
+        route::register('/api/create-project\?.*', 'project_create', true);
+        route::register('/api/remove-project', 'project_remove');
+        route::register('/api/remove-project\?.*', 'project_remove', true);
+        route::register('/api/project-list', 'project_list');
+        route::register('/api/project-list\?.*', 'project_list', true);
         route::register('/project', 'project_index');
         route::register('/project\?.*', 'project_index', true);
         route::register('/project/\?.*', 'project_index', true);
@@ -95,9 +95,9 @@ class App extends Safe
         return self::project('create');
     }
 
-    public function project_delete()
+    public function project_remove()
     {
-        return self::project('delete');
+        return self::project('remove');
     }
 
     public function project_list()

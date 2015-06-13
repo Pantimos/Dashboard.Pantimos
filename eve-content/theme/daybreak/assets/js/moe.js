@@ -323,13 +323,13 @@ define('page/home', [
 define('tpl/project-list', [], function () {
     'use strict';
     function render(it) {
-        var out = '<table class="table table table-bordered js-table-project-list"> <thead> <tr> <th class="col-md-11">\u9879\u76EE\u540D\u79F0</th> <th class="col-md-1">\u5220\u9664\u9879\u76EE</th> </tr> </thead> <tbody> ';
+        var out = '<table class="table table table-bordered table-hover js-table-project-list"> <thead> <tr> <th class="col-md-11">\u9879\u76EE\u540D\u79F0</th> <th class="col-md-1">\u5220\u9664\u9879\u76EE</th> </tr> </thead> <tbody> ';
         var arr1 = it;
         if (arr1) {
             var item, index = -1, l1 = arr1.length - 1;
             while (index < l1) {
                 item = arr1[index += 1];
-                out += ' <tr> <td>' + item + '</td> <td> <a class="button button-pill button-tiny button-circle button-caution" href="#"><i class="fa fa-minus"></i></a> </td> </tr> ';
+                out += ' <tr> <td>' + item + '</td> <td> <a class="button button-pill button-tiny button-circle button-caution js-remove-project" href="#"><i class="fa fa-minus"></i></a> </td> </tr> ';
             }
         }
         out += ' </tbody></table>';
@@ -387,7 +387,15 @@ define('model/config', [
     }
     var API = {
         'getProjectList': {
-            uri: protocol + host + '/project-list',
+            uri: protocol + host + '/api/project-list',
+            type: 'POST'
+        },
+        'createProject': {
+            uri: protocol + host + '/api/create-project',
+            type: 'POST'
+        },
+        'removeProject': {
+            uri: protocol + host + '/api/remove-project',
             type: 'POST'
         }
     };
@@ -452,7 +460,7 @@ define('model/network', [
             $.ajax({
                 type: api.type,
                 url: api.uri,
-                data: JSON.stringify(data),
+                data: data,
                 contentType: 'application/json',
                 success: innerSuccess,
                 error: innerFail
@@ -479,24 +487,38 @@ define('page/project', [
                 return false;
             }
             var debug = require('../model/debug');
-            debug('info');
+            debug('log');
             var Template = require('../model/template')(page);
             var Network = require('../model/network');
             function getList() {
                 Network.request('getProjectList', '', '', function (response) {
+                    debug.info(response, '\u83B7\u53D6\u9879\u76EE\u5217\u8868\u6210\u529F\u3002');
                     Template.render('project-list', response);
                 }, function (response) {
-                    debug.error(response, '\u5931\u8D25');
+                    debug.error(response, '\u83B7\u53D6\u9879\u76EE\u5217\u8868\u5931\u8D25');
                 });
             }
             function pageLoaded() {
                 getList();
             }
-            page.find('.js-create-project-button').on('click', function (e) {
+            page.delegate('.js-remove-project', 'click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                $.post('/create-project', { 'domain': page.find('.input-domain').val() }, function (resp) {
-                    debug.error(resp);
+                Network.request('removeProject', '', { 'domain': $(this).closest('tr').find('td:first-child').text() }, function (response) {
+                    getList();
+                    debug.log(response, '\u521B\u5EFA\u65B0\u7684\u9879\u76EE\u73AF\u5883\u6210\u529F\u3002');
+                }, function (response) {
+                    debug.error(response, '\u521B\u5EFA\u65B0\u7684\u9879\u76EE\u73AF\u5883\u5931\u8D25');
+                });
+            });
+            page.delegate('.js-create-project-button', 'click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                Network.request('createProject', '', { 'domain': page.find('.input-domain').val() }, function (response) {
+                    getList();
+                    debug.log(response, '\u521B\u5EFA\u65B0\u7684\u9879\u76EE\u73AF\u5883\u6210\u529F\u3002');
+                }, function (response) {
+                    debug.error(response, '\u521B\u5EFA\u65B0\u7684\u9879\u76EE\u73AF\u5883\u5931\u8D25');
                 });
             });
             pageLoaded();
