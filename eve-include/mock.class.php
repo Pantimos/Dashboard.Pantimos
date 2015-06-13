@@ -1,19 +1,23 @@
 <?php
 /**
- * 模拟接口管理
+ * Eve
  *
- * @desc 提供模拟接口管理
+ * 模拟接口管理。
+ *
+ * @version 1.0.0
+ *
+ * @email   soulteary@qq.com
+ * @website http://soulteary.com
  */
 
-if (!defined('FILE_PREFIX')) die('Silence is golden.');
+if (!defined('FILE_PREFIX')) include "../error-forbidden.php";
 
 class Mock extends Safe
 {
     private $args = [];
     private $config = [
-        'bin'      => 'node ' . vmRootDir . vmDomainName . '/public/eve-bin/Mock/bin/cli',
-        'dataRoot' => vmRootDir . vmDomainName . '/public/eve-content/data/',
-        'wrapper'  => [
+        'bin'     => 'node ' . ABSPATH . FILE_PREFIX . 'bin/Mock/bin/cli',
+        'wrapper' => [
             "start"   => "module.exports = function () {\n/*!\n",
             "example" => "
 {
@@ -155,45 +159,79 @@ helpers: {
 
     function __construct()
     {
-        $this->args = core::init_args(func_get_args());
-        $action = isset($this->args['action']) ? $this->args['action'] : "";
-        if (core::isAjax()) {
-            switch ($action) {
-                case 'view':
-                    break;
-                case 'emulate':
-                    header('Pantimos: Data Emulate');
-                    self::mockXHR($this->args);
-                    break;
-            }
+        $params = func_get_args()[0];
+        if (isset($params['action'])) {
+            $action = $params['action'];
         } else {
-            switch ($action) {
-                case 'view':
-                    self::optButtons();
-                    echo '<textarea id="console-result">';
-                    self::view();
-                    echo '</textarea>';
-                    break;
-                case 'emulate':
-                    header('Pantimos: Data Emulate');
-                    self::mockPage($this->args);
-                    break;
-            }
+            $action = 'index';
+        }
+
+        switch ($action) {
+            case 'list':
+                self::getList();
+                break;
+            case 'emulate':
+                header('Pantimos: Data Emulate');
+                core::isAjax() ? self::mockXHR($this->args) : self::mockPage($this->args);
+                break;
+            case 'create':
+
+                var_dump(self::analyseData($params));
+                break;
+            case 'remove':
+                break;
+            default:
+                $data['header'] = [
+                    'TITLE'        => '数据模拟 - ' . E_PAGE_TITLE,
+                    'PAGE_CHARSET' => E_CHARSET,
+                    'PAGE_LANG'    => E_LANG
+                ];
+
+                $data['nav'] = [];
+
+                $data['body'] = [];
+                $data['body_file'] = 'mock-index';
+
+                $data['footer'] = [
+                    'currentYear' => date('Y')
+                ];
+
+                return new Template($data);
         }
     }
 
     /**
-     * 操作按钮
+     * 获取当前目录下的项目列表
      */
-    private function optButtons()
+    private function getList()
     {
-        echo '<div class="btn-group control-btn" role="group">
-            <a class="btn btn-default" href="./?pantimos_mod=mock&pantimos_action=view">view</a>
-            <a class="btn btn-default" href="./?pantimos_mod=mock&pantimos_action=create">create</a>
-            <a class="btn btn-default" href="./?pantimos_mod=mock&pantimos_action="destroy>destroy</a>
-            <a class="btn btn-default" href="//editor.mock.pantimos.io" target="_blank">Mock Data</a>
-            <a class="btn btn-default" href="//mockimage.pantimos.io" target="_blank">Mock Image</a>
-        </div>';
+        ob_start();
+        system("tree " . vmRootDir . " -id -L 1");
+        $ret = ob_get_contents();
+        ob_end_clean();
+
+        $ret = str_replace(vmRootDir, "", $ret);
+
+        $arr = explode("\n", $ret);
+        $data = [];
+        foreach ($arr as $key => $val) {
+            $val = trim($val);
+            if ($val && !strstr($val, 'directories')) {
+                array_push($data, $val);
+            }
+        }
+
+        $result = [];
+
+        foreach ($data as $item) {
+            $hasMock = false;
+            if (is_dir(vmRootDir . "/" . $item . "/mock")) {
+                $hasMock = true;
+            }
+            array_push($result, ['name' => $item, 'mock' => $hasMock]);
+        }
+
+        API::success($result, true, 200, '获取Mock列表成功。');
     }
 
     /**
@@ -205,14 +243,12 @@ helpers: {
      */
     private function analyseData($config)
     {
-        $params = $_REQUEST;
-        unset ($params['pantimos_mod']);
-        unset ($params['pantimos_action']);
-        unset ($params['pantimos_hostname']);
-        unset ($params['pantimos_query']);
+        $params = explode('/', $_REQUEST['pantimos_query']);
+        $host = $params[1];
+        $query = implode('/', array_slice($params, 2));
         // 考虑是否限制目录深度，过深是否合并
-        $fullPath = $this->config['dataRoot'] . $config['host'] . $config['query'];
-        $fileName = basename($fullPath . "_api");
+        $fullPath = vmRootDir . $host . "/mock/" . $query;
+        $fileName = basename($fullPath . "_mockFile");
         system("mkdir -p " . dirname($fullPath));
 
         $file = $fullPath . $fileName . ".txt";
@@ -223,7 +259,7 @@ helpers: {
         }
         // 考虑加映射表
         // 这里考虑同样区分protocol 抑或使用proxy带参区分
-        return ['code' => $code, 'file' => $file, 'host' => $config['host'], 'query' => $config['query'], 'params' => $params];
+        return ['code' => $code, 'file' => $file, 'host' => $host, 'query' => $query, 'params' => $params];
     }
 
     private function mockXHR($config)
@@ -231,7 +267,6 @@ helpers: {
         $data = self::analyseData($config);
         switch ($data['code']) {
             case 200:
-
                 $cmd = $this->config['bin'] . ' --tpl ' . '' . $data['file'] . '';
                 ob_start();
                 system($cmd);
@@ -275,13 +310,6 @@ helpers: {
         }
 
     }
-
-
-    private function view()
-    {
-        echo "实现OKAY,界面晚点写";
-    }
-
 }
 
 

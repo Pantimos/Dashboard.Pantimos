@@ -52,11 +52,12 @@ server {
 
     location / {
         if (\$request_uri ~* ^/need_mock_api/api.name\$){
-            rewrite \"(.*)\" /{$DOMAIN_NAME}/\$1 break;
             proxy_pass http://mock.pantimos.io;
+            break;
         }
         if (\$request_uri ~* ^/favicon.ico\$){
             proxy_pass http://dashboard.pantimos.io;
+            break;
         }
 
         try_files \$uri \$uri/ /index.php?q=\$uri&\$args;

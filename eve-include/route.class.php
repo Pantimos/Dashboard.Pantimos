@@ -23,7 +23,7 @@ class Route extends Safe
     function __construct()
     {
         $req = $_SERVER['REQUEST_URI'];
-        if (strpos($req, '/index.php?/api/') !== false) {
+        if (strpos($req, '/index.php?/') !== false) {
             $req = str_replace('/index.php?', '', $req);
             $req = substr_replace($req, '?', strpos($req, '&'), 1);
         }
@@ -53,15 +53,22 @@ class Route extends Safe
         // 第一次匹配完全相等的
         foreach ($RouteSimpleRules as $rule => $execute) {
             if ($rule === $uri) {
+
                 app::$execute();
 
                 return true;
             }
         }
+
         // 第二次进行正则匹配
         foreach ($RouteRegexpRules as $rule => $execute) {
-            $regexp = '/^' . str_replace('/', '\/', $rule) . '$/';
+            $rule = str_replace('/', '\/', $rule);
+            $rule = str_replace('?', '\?', $rule);
+            $rule = str_replace('.', '\.', $rule);
+            $rule = str_replace('*', '.*', $rule);
+            $regexp = '/^' . $rule . '$/i';
             if (preg_match($regexp, $uri)) {
+
                 app::$execute();
 
                 return true;

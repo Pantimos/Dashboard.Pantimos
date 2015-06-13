@@ -20,7 +20,7 @@
                         <li><a href="/project"><i class="fa fa-connectdevelop"></i>创建环境</a></li>
                         <li class="divider"></li>
                         <li class="dropdown-header">模拟数据</li>
-                        <li><a href="#"><i class="fa fa-medium"></i>接口模拟</a></li>
+                        <li><a href="/mock"><i class="fa fa-medium"></i>接口模拟</a></li>
                         <li><a href="#"><i class="fa fa-picture-o"></i>图片模拟</a></li>
 
                         <li><a href="#"><i class="fa fa-github"></i>GitHub</a></li>

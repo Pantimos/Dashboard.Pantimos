@@ -21,7 +21,7 @@
                 <h2>模拟数据</h2>
                 <p><i class="fa fa-medium"></i></p>
                 <p>模拟开发过程中的页面或接口</p>
-                <p><a class="btn btn-default" href="#" role="button">开始模拟 &raquo;</a></p>
+                <p><a class="btn btn-default" href="/mock" role="button">开始模拟 &raquo;</a></p>
             </div>
             <div class="col-md-4">
                 <h2>文件上传</h2>

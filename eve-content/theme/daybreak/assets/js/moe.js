@@ -337,15 +337,47 @@ define('tpl/project-list', [], function () {
     }
     return render;
 });
+define('tpl/mock-list', [], function () {
+    'use strict';
+    function render(it) {
+        var out = '<table class="table table table-bordered table-hover js-table-mock-list"> <thead> <tr> <th class="col-md-11">\u9879\u76EE\u540D\u79F0</th> <th class="col-md-1">\u5220\u9664\u9879\u76EE</th> </tr> </thead> <tbody> ';
+        var arr1 = it;
+        if (arr1) {
+            var item, index = -1, l1 = arr1.length - 1;
+            while (index < l1) {
+                item = arr1[index += 1];
+                out += ' <tr> <td>' + item.name + '</td> <td> ';
+                if (item.mock) {
+                    out += ' <a class="button button-pill button-tiny button-circle button-caution js-remove-mock" href="#"><i class="fa fa-minus"></i></a> ';
+                }
+                out += ' ';
+                if (!item.mock) {
+                    out += ' <a class="button button-pill button-tiny button-circle button-action js-create-mock" href="#"><i class="fa fa-plus"></i></a> ';
+                }
+                out += ' </td> </tr> ';
+            }
+        }
+        out += ' </tbody></table>';
+        return out;
+    }
+    return render;
+});
 define('model/template', [
     'require',
     'exports',
     'module',
-    'tpl/project-list'
+    'tpl/project-list',
+    'tpl/mock-list'
 ], function (require) {
     'use strict';
-    var tplPackage = { 'project-list': require('../tpl/project-list') };
-    var container = { 'project-list': '.js-table-project-list' };
+    var tplPackage = {
+        'project-list': require('../tpl/project-list'),
+        'mock-list': require('../tpl/mock-list')
+    };
+    var container = {
+        'project-list': '.js-table-project-list',
+        'mock-list': '.js-table-mock-list'
+    };
     function Template(page) {
         this.page = page;
     }
@@ -396,6 +428,18 @@ define('model/config', [
         },
         'removeProject': {
             uri: protocol + host + '/api/remove-project',
+            type: 'POST'
+        },
+        'getMockList': {
+            uri: protocol + host + '/api/mock-list',
+            type: 'POST'
+        },
+        'createMock': {
+            uri: protocol + host + '/api/create-mock',
+            type: 'POST'
+        },
+        'removeMock': {
+            uri: protocol + host + '/api/remove-mock',
             type: 'POST'
         }
     };
@@ -525,6 +569,62 @@ define('page/project', [
         }
     };
 });
+define('page/mock', [
+    'require',
+    'exports',
+    'module',
+    'model/core',
+    'model/debug',
+    'model/template',
+    'model/network'
+], function (require) {
+    'use strict';
+    return {
+        init: function (container) {
+            var $ = require('../model/core');
+            var page = $(container);
+            if (!page.length) {
+                return false;
+            }
+            var debug = require('../model/debug');
+            debug('log');
+            var Template = require('../model/template')(page);
+            var Network = require('../model/network');
+            function getList() {
+                Network.request('getMockList', '', '', function (response) {
+                    debug.info(response, '\u83B7\u53D6\u9879\u76EE\u5217\u8868\u6210\u529F\u3002');
+                    Template.render('mock-list', response);
+                }, function (response) {
+                    debug.error(response, '\u83B7\u53D6\u9879\u76EE\u5217\u8868\u5931\u8D25');
+                });
+            }
+            function pageLoaded() {
+                getList();
+            }
+            page.delegate('.js-create-mock', 'click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                Network.request('createMock', '', { 'domain': $(this).closest('tr').find('td:first-child').text() }, function (response) {
+                    getList();
+                    debug.log(response, '\u521B\u5EFA\u65B0\u7684\u9879\u76EE\u73AF\u5883\u6210\u529F\u3002');
+                }, function (response) {
+                    debug.error(response, '\u521B\u5EFA\u65B0\u7684\u9879\u76EE\u73AF\u5883\u5931\u8D25');
+                });
+            });
+            page.delegate('.js-remove-mock', 'click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                Network.request('removeMock', '', { 'domain': $(this).closest('tr').find('td:first-child').text() }, function (response) {
+                    getList();
+                    debug.log(response, '\u521B\u5EFA\u65B0\u7684\u9879\u76EE\u73AF\u5883\u6210\u529F\u3002');
+                }, function (response) {
+                    debug.error(response, '\u521B\u5EFA\u65B0\u7684\u9879\u76EE\u73AF\u5883\u5931\u8D25');
+                });
+            });
+            pageLoaded();
+        }
+    };
+});
 define('moe', [
     'require',
     'exports',
@@ -532,7 +632,8 @@ define('moe', [
     'model/core',
     'model/debug',
     'page/home',
-    'page/project'
+    'page/project',
+    'page/mock'
 ], function (require) {
     'use strict';
     var $ = require('./model/core');
@@ -544,6 +645,7 @@ define('moe', [
             debug.log('Pantimos Start!');
             page.home = require('./page/home').init('.js-page-home');
             page.project = require('./page/project').init('.js-page-project');
+            page.mock = require('./page/mock').init('.js-page-mock');
         });
     }
     return { init: init };
