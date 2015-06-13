@@ -170,10 +170,9 @@ helpers: {
                 break;
             case 'emulate':
                 header('Pantimos: Data Emulate');
-                core::isAjax() ? self::mockXHR($this->args) : self::mockPage($this->args);
+                Core::isAjax() || Core::isCallback() ? self::mockXHR($this->args) : self::mockPage($this->args);
                 break;
             case 'create':
-
                 var_dump(self::analyseData($params));
                 break;
             case 'remove':
@@ -265,7 +264,7 @@ helpers: {
         $data = self::analyseData($config);
         switch ($data['code']) {
             case 200:
-                $cmd = $this->config['bin'] . ' --tpl ' . '' . $data['file'] . '';
+                $cmd = implode(' ', [$this->config['bin'], '--json', $data['file']]);
                 ob_start();
                 system($cmd);
                 $output = ob_get_contents();
@@ -289,7 +288,7 @@ helpers: {
         $data = self::analyseData($config);
         switch ($data['code']) {
             case 200:
-                $cmd = $this->config['bin'] . ' --tpl ' . '"' . $data['file'] . '"';
+                $cmd = implode(' ', [$this->config['bin'], '--html', $data['file']]);
                 ob_start();
                 system($cmd);
                 $output = ob_get_contents();
