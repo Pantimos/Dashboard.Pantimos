@@ -42,7 +42,7 @@
                 <h2>模拟图片</h2>
                 <p><i class="fa fa-picture-o"></i></p>
                 <p>开发过程中的图片模拟</p>
-                <p><a class="btn btn-default" href="#" role="button">模拟图片 &raquo;</a></p>
+                <p><a class="btn btn-default" href="/mockImage" role="button">模拟图片 &raquo;</a></p>
             </div>
             <div class="col-md-4">
                 <h2>构建项目</h2>

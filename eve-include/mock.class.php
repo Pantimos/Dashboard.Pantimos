@@ -154,8 +154,6 @@ helpers: {
             "end"     => "\n*/\n};"
         ]
     ];
-    private $query = "";
-    private $host = "";
 
     function __construct()
     {

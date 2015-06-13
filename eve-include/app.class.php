@@ -60,6 +60,10 @@ class App extends Safe
         route::register('/mock', 'mock_index');
         route::register('/mock?*', 'mock_index', true);
         route::register('/mock/?*', 'mock_index', true);
+        // 图片模拟
+        route::register('/mockimage', 'mockimage_index');
+        route::register('/mockimage?*', 'mockimage_index', true);
+        route::register('/mockimage/?*', 'mockimage_index', true);
         // 项目环境
         route::register('/about-project', 'intro');
         route::register('/about-project?*', 'intro', true);
@@ -95,6 +99,7 @@ class App extends Safe
         return new $page(['page' => $page, 'action' => $action]);
     }
 
+    /** ********** 项目管理 ********** **/
     public function project_index()
     {
         return self::page('Project');
@@ -115,6 +120,7 @@ class App extends Safe
         return self::page('Project', 'list');
     }
 
+    /** ********** 数据模拟 ********** **/
     public function mock_index()
     {
         return self::page('Mock');
@@ -138,6 +144,12 @@ class App extends Safe
     public function mock_remove()
     {
         return self::page('Mock', 'remove');
+    }
+
+    /** ********** 图片模拟 ********** **/
+    public function mockimage_index()
+    {
+        return self::page('MockImage');
     }
 
     /**
