@@ -14,7 +14,6 @@ if (!defined('FILE_PREFIX')) include "../error-forbidden.php";
 
 class Mock extends Safe
 {
-    private $args = [];
     private $config = [
         'bin'     => 'node ' . ABSPATH . FILE_PREFIX . 'bin/Mock/bin/cli',
         'wrapper' => [
@@ -170,10 +169,10 @@ helpers: {
                 break;
             case 'emulate':
                 header('Pantimos: Data Emulate');
-                Core::isAjax() || Core::isCallback() ? self::mockXHR($this->args) : self::mockPage($this->args);
+                Core::isAjax() || Core::isCallback() ? self::mockXHR() : self::mockPage();
                 break;
             case 'create':
-                var_dump(self::analyseData($params));
+                var_dump(self::analyseData());
                 break;
             case 'remove':
                 break;
@@ -234,11 +233,9 @@ helpers: {
     /**
      * 简单处理数据
      *
-     * @param $config
-     *
      * @return array
      */
-    private function analyseData($config)
+    private function analyseData()
     {
         $params = explode('/', $_REQUEST['pantimos_query']);
         $host = $params[1];
@@ -259,9 +256,9 @@ helpers: {
         return ['code' => $code, 'file' => $file, 'host' => $host, 'query' => $query, 'params' => $params];
     }
 
-    private function mockXHR($config)
+    private function mockXHR()
     {
-        $data = self::analyseData($config);
+        $data = self::analyseData();
         switch ($data['code']) {
             case 200:
                 $cmd = implode(' ', [$this->config['bin'], '--json', $data['file']]);
@@ -283,9 +280,9 @@ helpers: {
         }
     }
 
-    private function mockPage($config)
+    private function mockPage()
     {
-        $data = self::analyseData($config);
+        $data = self::analyseData();
         switch ($data['code']) {
             case 200:
                 $cmd = implode(' ', [$this->config['bin'], '--html', $data['file']]);

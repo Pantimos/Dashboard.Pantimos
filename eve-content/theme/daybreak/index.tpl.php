@@ -27,7 +27,7 @@
                 <h2>文件上传</h2>
                 <p><i class="fa fa-skyatlas"></i></p>
                 <p>开发过程中的文件上传</p>
-                <p><a class="btn btn-default" href="#" role="button">上传文件 &raquo;</a></p>
+                <p><a class="btn btn-default" href="/upload" role="button">上传文件 &raquo;</a></p>
             </div>
         </div>
 

@@ -64,6 +64,12 @@ class App extends Safe
         route::register('/mockimage', 'mockimage_index');
         route::register('/mockimage?*', 'mockimage_index', true);
         route::register('/mockimage/?*', 'mockimage_index', true);
+        // 如何使用
+        route::register('/how-to-use', 'how_to_use');
+        route::register('//how-to-use?*', 'how_to_use', true);
+        // 上传文件
+        route::register('/upload', 'upload');
+        route::register('/upload?*', 'upload', true);
         // 项目环境
         route::register('/about-project', 'intro');
         route::register('/about-project?*', 'intro', true);
@@ -152,18 +158,22 @@ class App extends Safe
         return self::page('MockImage');
     }
 
-    /**
-     * 项目介绍
-     *
-     * @since 1.0.0
-     *
-     * @param string $action
-     *
-     * @return Index
-     */
-    public function intro($action = 'index')
+    /** ********** 如何使用 ********** **/
+    public function how_to_use()
     {
-        return new Intro(['page' => 'intro', 'action' => $action]);
+        return self::page('Intro', 'how-to');
+    }
+
+    /** ********** 项目介绍 ********** **/
+    public function intro()
+    {
+        return self::page('Intro');
+    }
+
+    /** ********** 文件上传 ********** **/
+    public function upload()
+    {
+        return self::page('Upload');
     }
 
 

@@ -51,15 +51,14 @@ server {
     index       index.php index.html index.htm;
 
     location / {
-        if (\$request_uri ~* ^/need_mock_api/api.name\$){
-            proxy_pass http://mock.pantimos.io;
+        if ($request_uri ~* ^/mock-api/.*$){
+            proxy_pass http://mock.pantimos.io/?pantimos_query=/$host$uri&$args;
             break;
         }
         if (\$request_uri ~* ^/favicon.ico\$){
             proxy_pass http://dashboard.pantimos.io;
             break;
         }
-
         try_files \$uri \$uri/ /index.php?q=\$uri&\$args;
     }
 

@@ -3,17 +3,17 @@
     <div class="container">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
+                <span class="sr-only">切换导航栏状态</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">首页</a>
+            <a class="navbar-brand" href="/"{if="$showEssentials!==true"} title="返回首页"{/if}>首页</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse" aria-expanded="false">
             <ul class="nav navbar-nav">
                 <li{if="$showEssentials===true"} class="active"{/if}><a href="{if="$showEssentials===true"}#intro{else}/{/if}" class="application-intro"><i class="fa fa-lightbulb-o"></i>功能概览</a></li>
-                <li><a href="#"><i class="fa fa-book"></i>使用方法</a></li>
+                <li><a href="/how-to-use"><i class="fa fa-book"></i>使用方法</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-list"></i>功能列表 <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
@@ -22,8 +22,8 @@
                         <li class="dropdown-header">模拟数据</li>
                         <li><a href="/mock"><i class="fa fa-medium"></i>接口模拟</a></li>
                         <li><a href="/mockImage"><i class="fa fa-picture-o"></i>图片模拟</a></li>
-
-                        <li><a href="#"><i class="fa fa-github"></i>GitHub</a></li>
+                        <li class="divider"></li>
+                        <li><a href="/upload"><i class="fa fa-skyatlas"></i>上传文件</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
@@ -32,7 +32,7 @@
                         <li><a href="#"><i class="fa fa-tachometer"></i>组件状态</a></li>
                         <li class="divider"></li>
                         <li class="dropdown-header">在线资源</li>
-                        <li><a href="#"><i class="fa fa-github"></i>GitHub</a></li>
+                        <li><a href="https://github.com/Pantimos/Pantimos" target="_blank" title="Github repo"><i class="fa fa-github"></i>GitHub</a></li>
                     </ul>
                 </li>
             </ul>

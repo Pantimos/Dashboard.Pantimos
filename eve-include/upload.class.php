@@ -2,7 +2,7 @@
 /**
  * Eve
  *
- * 了解详情/如何使用等页面。
+ * 上传文件。
  *
  * @version 1.0.0
  *
@@ -12,7 +12,7 @@
 
 if (!defined('FILE_PREFIX')) include "../error-forbidden.php";
 
-class Intro extends Safe
+class Upload extends Safe
 {
     function __construct()
     {
@@ -25,28 +25,12 @@ class Intro extends Safe
 
 
         switch ($action) {
-            case 'how-to':
-                $data['header'] = [
-                    'TITLE'        => '使用方法 - ' . E_PAGE_TITLE,
-                    'PAGE_CHARSET' => E_CHARSET,
-                    'PAGE_LANG'    => E_LANG
-                ];
-
-                $data['nav'] = [
-                    'showHomeMenu' => false
-                ];
-
-                $data['body'] = [];
-                $data['body_file'] = 'howto-index';
-
-                $data['footer'] = [
-                    'currentYear' => date('Y')
-                ];
-
-                return new Template($data);
+            case 'upload':
+                echo '上传文件';
+                break;
             default:
                 $data['header'] = [
-                    'TITLE'        => '关于项目 - ' . E_PAGE_TITLE,
+                    'TITLE'        => '上传文件 - ' . E_PAGE_TITLE,
                     'PAGE_CHARSET' => E_CHARSET,
                     'PAGE_LANG'    => E_LANG
                 ];
@@ -56,7 +40,7 @@ class Intro extends Safe
                 ];
 
                 $data['body'] = [];
-                $data['body_file'] = 'intro-index';
+                $data['body_file'] = 'upload-index';
 
                 $data['footer'] = [
                     'currentYear' => date('Y')
