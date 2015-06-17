@@ -242,10 +242,19 @@ helpers: {
         $query = implode('/', array_slice($params, 2));
         // 考虑是否限制目录深度，过深是否合并
         $fullPath = vmRootDir . $host . "/mock/" . $query;
-        $fileName = basename($fullPath . "_mockFile");
-        system("mkdir -p " . dirname($fullPath));
+        $dirPath = dirname($fullPath);
+        $fileBaseName = basename($fullPath);
+        $fileExt = "_mockFile";
 
-        $file = $fullPath . $fileName . ".txt";
+        if (substr($dirPath, strlen($fileBaseName)) === $fileBaseName) {
+            $fileName = $fileExt;
+        } else {
+            $fileName = $fileBaseName . $fileExt;
+        }
+
+        system("mkdir -p " . $dirPath);
+
+        $file = $dirPath . '/' . $fileName . ".txt";
         if (file_exists($file)) {
             $code = 200;
         } else {

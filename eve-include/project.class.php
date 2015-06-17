@@ -24,15 +24,17 @@ class Project extends Safe
             'ip6-loopback',
             'dl.hhvm.com',
             'Pantimos',
-            'files.pantimos.io',
             'pantimos.io',
             'www.pantimos.io',
+            'files.pantimos.io',
             'pma.pantimos.io',
             'dashboard.pantimos.io',
             'mock.pantimos.io',
+            'format.pantimos.io',
             'editor.mock.pantimos.io',
             'mockimage.pantimos.io',
-            'files.pantimos.io'
+            'files.pantimos.io',
+            'sprite.pantimos.io'
         ],
         'base'      => '##
 # {$DOMAIN_NAME}
@@ -49,6 +51,11 @@ server {
 
     root        {$DOMAIN_PATH}/public;
     index       index.php index.html index.htm;
+
+    location ~* "^/favicon.ico$" {
+        proxy_pass http://dashboard.pantimos.io;
+        break;
+    }
 
     location / {
         if ($request_uri ~* ^/mock-api/.*$){
@@ -229,36 +236,4 @@ server {
             }
         }
     }
-
-    private function doJob($data = null, $do = null)
-    {
-
-        if (isset($data) && isset($do)) {
-            $this->data = $data;
-            $this->do = $do;
-        } elseif (!empty($_GET['data']) && !empty($_GET['do'])) {
-            $this->data = $_GET['data'];
-            $this->do = $_GET['do'];
-        } else {
-            API::fail("请检查输入内容。");
-        }
-
-        $this->do = strtolower(trim($this->do));
-        $domainName = strtolower(trim($this->data));
-        if (empty($domainName)) {
-            API::fail("请检查输入内容。");
-        }
-
-        $domainPath = vmRootDir . $domainName;
-        switch ($this->do) {
-            case 'create':
-
-                break;
-            case 'destroy':
-
-                break;
-        }
-
-    }
-
 }
