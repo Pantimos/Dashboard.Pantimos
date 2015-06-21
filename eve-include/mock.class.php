@@ -252,6 +252,13 @@ helpers: {
             $fileName = $fileBaseName . $fileExt;
         }
 
+        // fix for no domain request
+        if ($dirPath === vmRootDir) {
+            $dirPath .= 'None.Domain.Mock.Data';
+        } elseif ($dirPath . '/' === vmRootDir) {
+            $dirPath .= '/None.Domain.Mock.Data';
+        }
+
         system("mkdir -p " . $dirPath);
 
         $file = $dirPath . '/' . $fileName . ".txt";

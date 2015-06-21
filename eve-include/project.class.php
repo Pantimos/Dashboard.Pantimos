@@ -58,8 +58,8 @@ server {
     }
 
     location / {
-        if ($request_uri ~* ^/mock-api/.*$){
-            proxy_pass http://mock.pantimos.io/?pantimos_query=/$host$uri&$args;
+        if (\$request_uri ~* ^/mock-api/.*$){
+            proxy_pass http://mock.pantimos.io/?pantimos_query=/\$host\$uri&\$args;
             break;
         }
         if (\$request_uri ~* ^/favicon.ico\$){
