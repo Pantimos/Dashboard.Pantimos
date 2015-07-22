@@ -29,7 +29,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-question"></i>关于程序 <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href="#"><i class="fa fa-tachometer"></i>组件状态</a></li>
+                        <li><a href="/health"><i class="fa fa-tachometer"></i>组件状态</a></li>
                         <li class="divider"></li>
                         <li class="dropdown-header">在线资源</li>
                         <li><a href="https://github.com/Pantimos/Pantimos" target="_blank" title="Github repo"><i class="fa fa-github"></i>GitHub</a></li>

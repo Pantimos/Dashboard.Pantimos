@@ -329,7 +329,7 @@ define('tpl/project-list', [], function () {
             var item, index = -1, l1 = arr1.length - 1;
             while (index < l1) {
                 item = arr1[index += 1];
-                out += ' <tr> <td>' + item + '</td> <td> <a class="button button-pill button-tiny button-circle button-caution js-remove-project" href="#"><i class="fa fa-minus"></i></a> </td> </tr> ';
+                out += ' <tr> <td><a href="//' + item + '" target="_blank" title="\u8BBF\u95EE - ' + item + '">' + item + '</a></td> <td> <a class="button button-pill button-tiny button-circle button-caution js-remove-project" href="#"><i class="fa fa-minus"></i></a> </td> </tr> ';
             }
         }
         out += ' </tbody></table>';

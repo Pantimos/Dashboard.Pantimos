@@ -73,6 +73,9 @@ class App extends Safe
         // 项目环境
         route::register('/about-project', 'intro');
         route::register('/about-project?*', 'intro', true);
+        // 组件状态
+        route::register('/health', 'health');
+        route::register('/health?*', 'health', true);
         // 其他
         route::register('/hi-cat', 'hi_cat');
         route::register('/hi-cat?*', 'hi_cat', true);
@@ -176,6 +179,11 @@ class App extends Safe
         return self::page('Upload');
     }
 
+    /** ********** 组件状态 ********** **/
+    public function health()
+    {
+        return self::page('Health');
+    }
 
     public function hi_cat()
     {
